@@ -1,7 +1,8 @@
 #include <stdbool.h>
 
+#include "stdlib.h"
+
 #include "console.h"
-#include "memory.h"
 #include "fonts.h"
 #include "ioport.h"
 #include "eh.h"

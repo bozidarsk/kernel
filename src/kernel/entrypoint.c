@@ -3,7 +3,6 @@
 
 #include <elf.h>
 
-#include "memory.h"
 #include "console.h"
 #include "fonts.h"
 #include "interrupts.h"
