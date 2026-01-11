@@ -5,25 +5,43 @@
 
 #include "acpi.h"
 
+#define breakpoint() ({ __asm__ volatile("int3"); })
+#define halt() ({ __asm__ volatile("hlt"); })
+
+bool ExitedBootServices = false;
+
 uint8_t tmpelf[ELF_SIZE];
 uint8_t tmpxsdt[4096];
 
 __attribute__((aligned(16)))
 uint8_t tmpstack[4096];
 
-__attribute__((noreturn))
-void Error(const CHAR16* message, ...) 
+void Printf(const CHAR16* fmt, ...) 
 {
-	va_list args;
-	va_start(args, message);
-	Print(message, args);
-	va_end(args);
+	if (!ExitedBootServices) 
+	{
+		va_list args;
+		va_start(args, fmt);
+		Print(fmt, args);
+		va_end(args);
+	}
+}
+
+__attribute__((noreturn))
+void Errorf(const CHAR16* message, ...) 
+{
+	if (!ExitedBootServices) 
+	{
+		va_list args;
+		va_start(args, message);
+		Print(message, args);
+		va_end(args);
+	}
 
 	do 
 	{
-		__asm__ volatile("int3");
-		__asm__ volatile("cli");
-		__asm__ volatile("hlt");
+		breakpoint();
+		halt();
 	} while (true);
 }
 
@@ -63,19 +81,19 @@ void PrintMemoryMap(void)
     
     MemoryMapSize += 2*  DescriptorSize;
     Status = uefi_call_wrapper(BS->AllocatePool, 3, EfiLoaderData, MemoryMapSize, (VOID**)&MemoryMap);
-    if (EFI_ERROR(Status)) Error(L"PrintMemoryMap(): BS->AllocatePool(): failed to allocate memory map - %r\n", Status);
+    if (EFI_ERROR(Status)) Errorf(L"PrintMemoryMap(): BS->AllocatePool(): failed to allocate memory map - %r\n", Status);
     
     Status = uefi_call_wrapper(BS->GetMemoryMap, 5, &MemoryMapSize, MemoryMap, &MapKey, &DescriptorSize, &DescriptorVersion);
     if (EFI_ERROR(Status)) 
     {
-        Error(L"PrintMemoryMap(): BS->GetMemoryMap(): failed to get memory map - %r\n", Status);
+        Errorf(L"PrintMemoryMap(): BS->GetMemoryMap(): failed to get memory map - %r\n", Status);
         uefi_call_wrapper(BS->FreePool, 1, MemoryMap);
         return;
     }
     
-    Print(L"\n=== Memory Map ===\n");
-    Print(L"Type                     Start            End              Pages\n");
-    Print(L"-----------------------------------------------------------------------\n");
+    Printf(L"\n=== Memory Map ===\n");
+    Printf(L"Type                     Start            End              Pages\n");
+    Printf(L"-----------------------------------------------------------------------\n");
     
     UINT8* MapPtr = (UINT8*)MemoryMap;
     UINT8* MapEnd = MapPtr + MemoryMapSize;
@@ -106,19 +124,19 @@ void PrintMemoryMap(void)
         
         EFI_PHYSICAL_ADDRESS End = Desc->PhysicalStart + (Desc->NumberOfPages * 4096);
         
-        Print(L"%-20s 0x%016lx 0x%016lx %6ld\n", TypeName, Desc->PhysicalStart, End, Desc->NumberOfPages);
+        Printf(L"%-20s 0x%016lx 0x%016lx %6ld\n", TypeName, Desc->PhysicalStart, End, Desc->NumberOfPages);
         
         MapPtr += DescriptorSize;
     }
     
-    Print(L"=======================================================================\n\n");
+    Printf(L"=======================================================================\n\n");
     
     uefi_call_wrapper(BS->FreePool, 1, MemoryMap);
 }
 
 void Read(EFI_HANDLE image, const CHAR16* path) 
 {
-	Print(L"reading elf file '" ELF_PATH "'\n");
+	Printf(L"reading elf file '" ELF_PATH "'\n");
 
 	EFI_LOADED_IMAGE* loadedImage = NULL;				    /* image interface */
 	EFI_GUID lipGuid = EFI_LOADED_IMAGE_PROTOCOL_GUID;	    /* image interface GUID */
@@ -129,34 +147,34 @@ void Read(EFI_HANDLE image, const CHAR16* path)
 
 	/* get the loaded image protocol interface for our "image" */
 	Status = uefi_call_wrapper(BS->HandleProtocol, 3, image, &lipGuid, (void**) &loadedImage);
-	if (EFI_ERROR(Status)) Error(L"Read(): BS->HandleProtocol(): %r\n", Status);
+	if (EFI_ERROR(Status)) Errorf(L"Read(): BS->HandleProtocol(): %r\n", Status);
 
 	/* get the volume handle */
 	Status = uefi_call_wrapper(BS->HandleProtocol, 3, loadedImage->DeviceHandle, &fsGuid, (VOID*)&IOVolume);
-	if (EFI_ERROR(Status)) Error(L"Read(): BS->HandleProtocol(): %r\n", Status);
+	if (EFI_ERROR(Status)) Errorf(L"Read(): BS->HandleProtocol(): %r\n", Status);
 	Status = uefi_call_wrapper(IOVolume->OpenVolume, 2, IOVolume, &Volume);
-	if (EFI_ERROR(Status)) Error(L"Read(): IOVolume->OpenVolume(): %r\n", Status);
+	if (EFI_ERROR(Status)) Errorf(L"Read(): IOVolume->OpenVolume(): %r\n", Status);
 
 	EFI_FILE_HANDLE FileHandle;
 
 	/* open the file */
 	Status = uefi_call_wrapper(Volume->Open, 5, Volume, &FileHandle, path, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
-	if (EFI_ERROR(Status)) Error(L"Read(): Volume->Open(): %r\n", Status);
+	if (EFI_ERROR(Status)) Errorf(L"Read(): Volume->Open(): %r\n", Status);
 
 	/* read from the file */
 	UINT64 ReadSize = ELF_SIZE;
 
 	Status = uefi_call_wrapper(FileHandle->Read, 3, FileHandle, &ReadSize, tmpelf);
-	if (EFI_ERROR(Status)) Error(L"Read(): FileHandle->Read(): %r\n", Status);
+	if (EFI_ERROR(Status)) Errorf(L"Read(): FileHandle->Read(): %r\n", Status);
 
 	/* close the file */
 	Status = uefi_call_wrapper(FileHandle->Close, 1, FileHandle);
-	if (EFI_ERROR(Status)) Error(L"Read(): FileHandle->Close(): %r\n", Status);
+	if (EFI_ERROR(Status)) Errorf(L"Read(): FileHandle->Close(): %r\n", Status);
 }
 
 void* Load() 
 {
-	// Print(L"loading elf file '" ELF_PATH "'\n");
+	Printf(L"loading elf file '" ELF_PATH "'\n");
 
 	Elf64_Ehdr* ElfHeader = (Elf64_Ehdr*)tmpelf;
 
@@ -165,10 +183,10 @@ void* Load()
 		|| ElfHeader->e_ident[EI_MAG1] != ELFMAG1
 		|| ElfHeader->e_ident[EI_MAG2] != ELFMAG2
 		|| ElfHeader->e_ident[EI_MAG3] != ELFMAG3
-	) __asm__ volatile("int3"); // Error(L"Load(): invalid elf magic\n");
+	) Errorf(L"Load(): invalid elf magic\n");
 
 	if (ElfHeader->e_ident[EI_CLASS] != ELFCLASS64)
-		__asm__ volatile("int3"); // Error(L"Load(): elf class must be ELF64\n");
+		Errorf(L"Load(): elf class must be ELF64\n");
 
 	Elf64_Phdr* ProgramHeaders = (Elf64_Phdr*)((UINT8*)tmpelf + ElfHeader->e_phoff);
 
@@ -179,11 +197,11 @@ void* Load()
 		if (phdr->p_type != PT_LOAD)
 			continue;
 
-		// Print(L"segment %d wants paddr=%p vaddr=%p size=%p\n", i, phdr->p_paddr, phdr->p_vaddr, phdr->p_memsz);
+		Printf(L"segment %d wants paddr=%p vaddr=%p size=%p\n", i, phdr->p_paddr, phdr->p_vaddr, phdr->p_memsz);
 
 		if (phdr->p_memsz == 0) 
 		{
-			// Print(L"segment %d is zero-sized - skipping\n", i);
+			Printf(L"segment %d is zero-sized - skipping\n", i);
 			continue;
 		}
 
@@ -194,16 +212,16 @@ void* Load()
 		if (phdr->p_memsz > phdr->p_filesz)
 			SetMemory((void*)(SegmentAddr + phdr->p_filesz), 0, phdr->p_memsz - phdr->p_filesz);
 
-		// Print(L"segment %d loaded at %p (requested %p)\n", i, SegmentAddr, phdr->p_paddr);
+		Printf(L"segment %d loaded at %p (requested %p)\n", i, SegmentAddr, phdr->p_paddr);
 	}
 
-	// Print(L"entry point found at %p\n", ElfHeader->e_entry);
+	Printf(L"entry point found at %p\n", ElfHeader->e_entry);
 	return (void*)ElfHeader->e_entry;
 }
 
 void ExitBootServices(EFI_HANDLE ImageHandle) 
 {
-	// Print(L"exiting boot services\n");
+	Printf(L"exiting boot services\n");
 
 	EFI_STATUS Status;
 
@@ -221,13 +239,13 @@ void ExitBootServices(EFI_HANDLE ImageHandle)
 	Status = uefi_call_wrapper(BS->AllocatePool, 3, EfiLoaderData, MemoryMapSize, (VOID**)&MemoryMap);
 
 	Status = uefi_call_wrapper(BS->GetMemoryMap, 5, &MemoryMapSize, MemoryMap, &MapKey, &DescriptorSize, &DescriptorVersion);
-	if (EFI_ERROR(Status)) __asm__ volatile("int3"); // Error(L"ExitBootServices(): failed to get memory map - %r\n", Status);
+	if (EFI_ERROR(Status)) Errorf(L"ExitBootServices(): failed to get memory map - %r\n", Status);
 
 	// Exit boot services
 	Status = uefi_call_wrapper(BS->ExitBootServices, 2, ImageHandle, MapKey);
-	if (EFI_ERROR(Status)) __asm__ volatile("int3"); // Error(L"ExitBootServices(): failed to exit boot services - %r\n", Status);
+	if (EFI_ERROR(Status)) Errorf(L"ExitBootServices(): failed to exit boot services - %r\n", Status);
 
-	__asm__ volatile("cli");
+	ExitedBootServices = true;
 }
 
 EFI_STATUS
@@ -250,15 +268,19 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 		XSDT* xsdt = (XSDT*)xsdp->xsdtAddress;
 
 		if (xsdt->header.size > sizeof(tmpxsdt))
-			Error(L"xsdt->header.size > sizeof(tmpxsdt)\n");
+			Errorf(L"xsdt->header.size > sizeof(tmpxsdt)\n");
 
 		CopyMemory(tmpxsdt, xsdt, xsdt->header.size);
 
-		Print(L"xsdt found addr=%p size=%d signature=%p\n", xsdt, xsdt->header.size, *(uint64_t*)(&xsdt->header.signature));
+		Printf(L"xsdt found addr=%p size=%d signature=%p\n", xsdt, xsdt->header.size, *(uint64_t*)(&xsdt->header.signature));
 	}
 
+	Printf(L"booting '" ELF_PATH "'\n");
+
 	Read(ImageHandle, ELF_PATH);
+
 	ExitBootServices(ImageHandle);
+	__asm__ volatile("cli");
 
 	__asm__ volatile("mov %0, %%rsp" : : "r" (tmpstack + sizeof(tmpstack)));
 
