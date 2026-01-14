@@ -1,6 +1,7 @@
 #ifndef EH_H
 #define EH_H
 
+#include "stdlib.h"
 #include "console.h"
 
 #define breakpoint() ({ __asm__ volatile("int3"); })
@@ -8,15 +9,7 @@
 
 #define throw(exception, message) \
 ({ \
-	console_write_string("exception in '"); \
-	console_write_string(__FILE__); \
-	console_write_string("': "); \
-	console_write_string(__FUNCTION__); \
-	console_write_string(": "); \
-	console_write_string(#exception); \
-	console_write_string(": "); \
-	console_write_string(message); \
-	console_write_string("\n"); \
+	printf("exception in '%s:%i': %s(): %s - %s\n", __FILE__, __LINE__, __FUNCTION__, #exception, message); \
 	breakpoint(); \
 	hlt(); \
 })
