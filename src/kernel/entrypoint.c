@@ -3,6 +3,8 @@
 
 #include <elf.h>
 
+#include "stdlib.h"
+
 #include "console.h"
 #include "fonts.h"
 #include "interrupts.h"
@@ -20,7 +22,7 @@ void int32(Registers regs, uint64_t error)
 {
 	(void)regs;
 	(void)error;
-	console_writeline("timer");
+	printf("timer\n");
 }
 
 __attribute__((noreturn))
@@ -28,169 +30,37 @@ void int3(Registers regs, uint64_t error)
 {
 	(void)error;
 
-	console_writeline("hit a software breakpoint:");
-	const char* space = "  ";
+	printf("hit a software breakpoint:\n");
 
-	console_write("rip: 0x");
-	console_write((void*)regs.rip);
-	console_write(space);
-	console_write("rflags: 0x");
-	console_write((void*)regs.rflags);
-	console_write(space);
-	console_write("msr: 0x");
-	console_writeline((void*)regs.msr);
+	printf("rip: 0x%.16llx  rflags: 0x%.16llx  msr: 0x%.16llx\n", regs.rip, regs.rflags, regs.msr);
 
-	console_write("xmm0:  0x");
-	console_write((void*)(regs.xmm0 >> 64));
-	console_write((void*)regs.xmm0);
-	console_write(space);
-	console_write("xmm1:  0x");
-	console_write((void*)(regs.xmm1 >> 64));
-	console_writeline((void*)regs.xmm1);
+	printf("xmm0:  0x%.16llx%.16llx  xmm1:  0x%.16llx%.16llx\n", regs.xmm0 >> 64, regs.xmm0, regs.xmm1 >> 64, regs.xmm1);
+	printf("xmm2:  0x%.16llx%.16llx  xmm3:  0x%.16llx%.16llx\n", regs.xmm2 >> 64, regs.xmm2, regs.xmm3 >> 64, regs.xmm3);
+	printf("xmm4:  0x%.16llx%.16llx  xmm5:  0x%.16llx%.16llx\n", regs.xmm4 >> 64, regs.xmm4, regs.xmm5 >> 64, regs.xmm5);
+	printf("xmm6:  0x%.16llx%.16llx  xmm7:  0x%.16llx%.16llx\n", regs.xmm6 >> 64, regs.xmm6, regs.xmm7 >> 64, regs.xmm7);
+	printf("xmm8:  0x%.16llx%.16llx  xmm9:  0x%.16llx%.16llx\n", regs.xmm8 >> 64, regs.xmm8, regs.xmm9 >> 64, regs.xmm9);
+	printf("xmm10: 0x%.16llx%.16llx  xmm11: 0x%.16llx%.16llx\n", regs.xmm10 >> 64, regs.xmm10, regs.xmm11 >> 64, regs.xmm11);
+	printf("xmm12: 0x%.16llx%.16llx  xmm13: 0x%.16llx%.16llx\n", regs.xmm12 >> 64, regs.xmm12, regs.xmm13 >> 64, regs.xmm13);
+	printf("xmm14: 0x%.16llx%.16llx  xmm15: 0x%.16llx%.16llx\n", regs.xmm14 >> 64, regs.xmm14, regs.xmm15 >> 64, regs.xmm15);
 
-	console_write("xmm2:  0x");
-	console_write((void*)(regs.xmm2 >> 64));
-	console_write((void*)regs.xmm2);
-	console_write(space);
-	console_write("xmm3:  0x");
-	console_write((void*)(regs.xmm3 >> 64));
-	console_writeline((void*)regs.xmm3);
+	printf("cr0: 0x%.16llx  cr2: 0x%.16llx  cr3: 0x%.16llx  cr4: 0x%.16llx  cr8: 0x%.16llx\n", regs.cr0, regs.cr2, regs.cr3, regs.cr4, regs.cr8);
 
-	console_write("xmm4:  0x");
-	console_write((void*)(regs.xmm4 >> 64));
-	console_write((void*)regs.xmm4);
-	console_write(space);
-	console_write("xmm5:  0x");
-	console_write((void*)(regs.xmm5 >> 64));
-	console_writeline((void*)regs.xmm5);
+	printf("rax: 0x%.16llx  rbx: 0x%.16llx  rcx: 0x%.16llx  rdx: 0x%.16llx\n", regs.rax, regs.rbx, regs.rcx, regs.rdx);
+	printf("rsi: 0x%.16llx  rdi: 0x%.16llx  rbp: 0x%.16llx  rsp: 0x%.16llx\n", regs.rsi, regs.rdi, regs.rbp, regs.rsp);
 
-	console_write("xmm6:  0x");
-	console_write((void*)(regs.xmm6 >> 64));
-	console_write((void*)regs.xmm6);
-	console_write(space);
-	console_write("xmm7:  0x");
-	console_write((void*)(regs.xmm7 >> 64));
-	console_writeline((void*)regs.xmm7);
+	printf("r8:  0x%.16llx  r9:  0x%.16llx\n", regs.r8, regs.r9);
+	printf("r10: 0x%.16llx  r11: 0x%.16llx\n", regs.r10, regs.r11);
+	printf("r12: 0x%.16llx  r13: 0x%.16llx\n", regs.r12, regs.r13);
+	printf("r14: 0x%.16llx  r15: 0x%.16llx\n", regs.r14, regs.r15);
 
-	console_write("xmm8:  0x");
-	console_write((void*)(regs.xmm8 >> 64));
-	console_write((void*)regs.xmm8);
-	console_write(space);
-	console_write("xmm9:  0x");
-	console_write((void*)(regs.xmm9 >> 64));
-	console_writeline((void*)regs.xmm9);
-
-	console_write("xmm10: 0x");
-	console_write((void*)(regs.xmm10 >> 64));
-	console_write((void*)regs.xmm10);
-	console_write(space);
-	console_write("xmm11: 0x");
-	console_write((void*)(regs.xmm11 >> 64));
-	console_writeline((void*)regs.xmm11);
-
-	console_write("xmm12: 0x");
-	console_write((void*)(regs.xmm12 >> 64));
-	console_write((void*)regs.xmm12);
-	console_write(space);
-	console_write("xmm13: 0x");
-	console_write((void*)(regs.xmm13 >> 64));
-	console_writeline((void*)regs.xmm13);
-
-	console_write("xmm14: 0x");
-	console_write((void*)(regs.xmm14 >> 64));
-	console_write((void*)regs.xmm14);
-	console_write(space);
-	console_write("xmm15: 0x");
-	console_write((void*)(regs.xmm15 >> 64));
-	console_writeline((void*)regs.xmm15);
-
-	console_write("cr0: 0x");
-	console_write((void*)regs.cr0);
-	console_write(space);
-	console_write("cr2: 0x");
-	console_write((void*)regs.cr2);
-	console_write(space);
-	console_write("cr3: 0x");
-	console_write((void*)regs.cr3);
-	console_write(space);
-	console_write("cr4: 0x");
-	console_write((void*)regs.cr4);
-	console_write(space);
-	console_write("cr8: 0x");
-	console_writeline((void*)regs.cr8);
-
-	console_write("rax: 0x");
-	console_write((void*)regs.rax);
-	console_write(space);
-	console_write("rbx: 0x");
-	console_write((void*)regs.rbx);
-	console_write(space);
-	console_write("rcx: 0x");
-	console_write((void*)regs.rcx);
-	console_write(space);
-	console_write("rdx: 0x");
-	console_writeline((void*)regs.rdx);
-
-	console_write("rsi: 0x");
-	console_write((void*)regs.rsi);
-	console_write(space);
-	console_write("rdi: 0x");
-	console_write((void*)regs.rdi);
-	console_write(space);
-	console_write("rbp: 0x");
-	console_write((void*)regs.rbp);
-	console_write(space);
-	console_write("rsp: 0x");
-	console_writeline((void*)regs.rsp);
-
-	console_write("r8:  0x");
-	console_write((void*)regs.r8);
-	console_write(space);
-	console_write("r9:  0x");
-	console_writeline((void*)regs.r9);
-
-	console_write("r10: 0x");
-	console_write((void*)regs.r10);
-	console_write(space);
-	console_write("r11: 0x");
-	console_writeline((void*)regs.r11);
-
-	console_write("r12: 0x");
-	console_write((void*)regs.r12);
-	console_write(space);
-	console_write("r13: 0x");
-	console_writeline((void*)regs.r13);
-
-	console_write("r14: 0x");
-	console_write((void*)regs.r14);
-	console_write(space);
-	console_write("r15: 0x");
-	console_writeline((void*)regs.r15);
-
-	console_write("cs: ");
-	console_write(regs.cs);
-	console_write(space);
-	console_write("ds: ");
-	console_write(regs.ds);
-	console_write(space);
-	console_write("ss: ");
-	console_write(regs.ss);
-	console_write(space);
-	console_write("es: ");
-	console_write(regs.es);
-	console_write(space);
-	console_write("fs: ");
-	console_write(regs.fs);
-	console_write(space);
-	console_write("gs: ");
-	console_writeline(regs.gs);
+	printf("cs: %i  ds: %i  ss: %i  es: %i  fs: %i\n", regs.cs, regs.ds, regs.ss, regs.es, regs.fs);
 
 	hlt();
 }
 
 void pci_print_device(CommonHeader header) 
 {
-	console_writeline((void*)header.subclass);
+	printf("%p\n", header.subclass);
 }
 
 void kmain(Elf64_Ehdr* elf, XSDT* xsdt) 
@@ -213,8 +83,7 @@ void kmain(Elf64_Ehdr* elf, XSDT* xsdt)
 	pic_disable();
 	apic_initialize();
 
-	console_write("apic base: ");
-	console_writeline(apic_get_base());
+	printf("apic base: %p\n", apic_get_base());
 
 	interrupts_initialize(8, 0);
 	interrupts_set_handler(0x03, &int3);
@@ -223,7 +92,7 @@ void kmain(Elf64_Ehdr* elf, XSDT* xsdt)
 
 	char vendor[12 + 1];
 	cpuid_get_vendor(vendor);
-	console_writeline(vendor);
+	printf("%s\n", vendor);
 
 	pci_enumerate_devices(&pci_print_device);
 }

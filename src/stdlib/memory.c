@@ -1,6 +1,6 @@
 #include "stdlib.h"
 
-void* memcpy(void* destination, void* source, size_t size) 
+void* memcpy(void* destination, const void* source, size_t size) 
 {
 	if (!destination || !source)
 		return destination;
