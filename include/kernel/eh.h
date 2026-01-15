@@ -1,8 +1,7 @@
 #ifndef EH_H
 #define EH_H
 
-#include "stdlib.h"
-#include "console.h"
+#include <stdio.h>
 
 #define breakpoint() ({ __asm__ volatile("int3"); })
 #define hlt() ({ while (true) __asm__ volatile("hlt"); })

@@ -1,4 +1,4 @@
-#include "stdlib.h"
+#include <stdint.h>
 
 double fabs(double x) 
 {

@@ -1,22 +1,21 @@
+#include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
 
 #include <elf.h>
 
-#include "stdlib.h"
-
-#include "console.h"
-#include "fonts.h"
-#include "interrupts.h"
-#include "ioport.h"
-#include "cpuid.h"
-#include "cpu.h"
-#include "pci.h"
-#include "pic.h"
-#include "apic.h"
-#include "ioapic.h"
-#include "acpi.h"
-#include "eh.h"
+#include "kernel/console.h"
+#include "kernel/fonts.h"
+#include "kernel/interrupts.h"
+#include "kernel/ioport.h"
+#include "kernel/cpuid.h"
+#include "kernel/cpu.h"
+#include "kernel/pci.h"
+#include "kernel/pic.h"
+#include "kernel/apic.h"
+#include "kernel/ioapic.h"
+#include "kernel/acpi.h"
+#include "kernel/eh.h"
 
 void int32(Registers regs, uint64_t error) 
 {
@@ -81,9 +80,9 @@ void kmain(Elf64_Ehdr* elf, XSDT* xsdt)
 
 	pic_remap(0x20);
 	pic_disable();
-	apic_initialize();
+	// apic_initialize();
 
-	printf("apic base: %p\n", apic_get_base());
+	// printf("apic base: %p\n", apic_get_base());
 
 	interrupts_initialize(8, 0);
 	interrupts_set_handler(0x03, &int3);
@@ -95,4 +94,7 @@ void kmain(Elf64_Ehdr* elf, XSDT* xsdt)
 	printf("%s\n", vendor);
 
 	pci_enumerate_devices(&pci_print_device);
+
+	printf("a: 0x%-10.16x  b: 0x%.16x  c: 0x%.16llx - %f TEST, %+05d\n", 0xcafebabe, 0xdeadbeef, 0xabcdef0123456789, -3.14, 3);
+	throw(InvalidOperationException, "Cannot return from main.");
 }

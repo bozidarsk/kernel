@@ -1,5 +1,5 @@
-#include "cpuid.h"
-#include "eh.h"
+#include "kernel/cpuid.h"
+#include "kernel/eh.h"
 
 void cpuid(uint64_t command, uint32_t* eax, uint32_t* ebx, uint32_t* ecx, uint32_t* edx) 
 {

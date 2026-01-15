@@ -1,4 +1,6 @@
-#include "stdlib.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <math.h>
 
 static const char chars[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 static const unsigned int baseMax = (sizeof(chars) / sizeof(char)) - 1;

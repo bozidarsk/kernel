@@ -1,6 +1,6 @@
 #include <stddef.h>
 
-#include "fonts.h"
+#include "kernel/fonts.h"
 
 static const uint8_t W8H16[] = 
 {

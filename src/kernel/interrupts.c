@@ -1,8 +1,6 @@
-#include <stddef.h>
-
-#include "interrupts.h"
-#include "ioport.h"
-#include "eh.h"
+#include "kernel/interrupts.h"
+#include "kernel/ioport.h"
+#include "kernel/eh.h"
 
 #define INTERRUPTS_COUNT 256
 
