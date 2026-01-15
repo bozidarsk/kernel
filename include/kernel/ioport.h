@@ -10,6 +10,6 @@ uint32_t ind(uint16_t port);
 uint16_t inw(uint16_t port);
 uint8_t inb(uint16_t port);
 
-#define ioport_wait() outb(0x80, 0)
+void iowait(void);
 
 #endif
