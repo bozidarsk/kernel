@@ -2,7 +2,7 @@
 
 set -e
 
-CFLAGS='-ffreestanding -fno-stack-protector -maccumulate-outgoing-args -fno-stack-check -fno-pic -fno-pie -finline -mno-red-zone -msse4.2 -mno-avx -nostdinc -nostdlib -I include -Wall -Wextra -std=c23 -c'
+CFLAGS='-ffreestanding -fno-stack-protector -maccumulate-outgoing-args -fno-stack-check -fno-pic -fno-pie -finline -masm=intel -mno-red-zone -msse4.2 -mno-avx -nostdinc -nostdlib -I include -Wall -Wextra -std=c23 -c'
 ASMFLAGS='-f elf64'
 LDFLAGS='-nostdlib -znocombreloc -static -no-pie -L bin'
 
