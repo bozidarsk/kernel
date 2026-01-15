@@ -4,8 +4,8 @@
 
 #define INTERRUPTS_COUNT 256
 
-#define def_isr_error(n) __attribute__((naked)) static void isr##n(void) { __asm__ volatile("pushq $" #n); __asm__ volatile("jmp isr_common"); }
-#define def_isr_noerror(n) __attribute__((naked)) static void isr##n(void) { __asm__ volatile("pushq $0"); __asm__ volatile("pushq $" #n); __asm__ volatile("jmp isr_common"); }
+#define def_isr_error(n) __attribute__((naked)) static void isr##n(void) { __asm__ volatile("push " #n); __asm__ volatile("jmp isr_common"); }
+#define def_isr_noerror(n) __attribute__((naked)) static void isr##n(void) { __asm__ volatile("push 0"); __asm__ volatile("push " #n); __asm__ volatile("jmp isr_common"); }
 
 static InterruptHandler handlers[INTERRUPTS_COUNT] = {0};
 
@@ -17,26 +17,26 @@ __attribute__((naked))
 __attribute__((used))
 static void isr_common(void) 
 {
-	__asm__ volatile("mov %%rax, %0" : "=r" (regs.rax));
-	__asm__ volatile("mov %%rbx, %0" : "=r" (regs.rbx));
-	__asm__ volatile("mov %%rcx, %0" : "=r" (regs.rcx));
-	__asm__ volatile("mov %%rdx, %0" : "=r" (regs.rdx));
-	__asm__ volatile("mov %%rsi, %0" : "=r" (regs.rsi));
-	__asm__ volatile("mov %%rdi, %0" : "=r" (regs.rdi));
-	__asm__ volatile("mov %%r8, %0" : "=r" (regs.r8));
-	__asm__ volatile("mov %%r9, %0" : "=r" (regs.r9));
-	__asm__ volatile("mov %%r10, %0" : "=r" (regs.r10));
-	__asm__ volatile("mov %%r11, %0" : "=r" (regs.r11));
-	__asm__ volatile("mov %%r12, %0" : "=r" (regs.r12));
-	__asm__ volatile("mov %%r13, %0" : "=r" (regs.r13));
-	__asm__ volatile("mov %%r14, %0" : "=r" (regs.r14));
-	__asm__ volatile("mov %%r15, %0" : "=r" (regs.r15));
+	__asm__ volatile("mov %0, %%rax" : "=r" (regs.rax));
+	__asm__ volatile("mov %0, %%rbx" : "=r" (regs.rbx));
+	__asm__ volatile("mov %0, %%rcx" : "=r" (regs.rcx));
+	__asm__ volatile("mov %0, %%rdx" : "=r" (regs.rdx));
+	__asm__ volatile("mov %0, %%rsi" : "=r" (regs.rsi));
+	__asm__ volatile("mov %0, %%rdi" : "=r" (regs.rdi));
+	__asm__ volatile("mov %0, %%r8" : "=r" (regs.r8));
+	__asm__ volatile("mov %0, %%r9" : "=r" (regs.r9));
+	__asm__ volatile("mov %0, %%r10" : "=r" (regs.r10));
+	__asm__ volatile("mov %0, %%r11" : "=r" (regs.r11));
+	__asm__ volatile("mov %0, %%r12" : "=r" (regs.r12));
+	__asm__ volatile("mov %0, %%r13" : "=r" (regs.r13));
+	__asm__ volatile("mov %0, %%r14" : "=r" (regs.r14));
+	__asm__ volatile("mov %0, %%r15" : "=r" (regs.r15));
 
-	__asm__ volatile("fxsave64 (%0)"  : : "r" (fxsave) : "memory");
+	__asm__ volatile("fxsave64 [%0]"  : : "r" (fxsave) : "memory");
 
-	__asm__ volatile("mov %%rbp, %0" : "=r"(regs.rbp));
+	__asm__ volatile("mov %0, %%rbp" : "=r"(regs.rbp));
 
-	__asm__ volatile("mov %%rsp, %%rbp" : );
+	__asm__ volatile("mov %%rbp, %%rsp" : );
 
 	// rbp + 0 == index
 	// rbp + 8 == error
@@ -46,54 +46,54 @@ static void isr_common(void)
 	// rbp + 40 == rsp
 	// rbp + 48 == ss
 
-	__asm__ volatile("mov 40(%%rbp), %0" : "=r" (regs.rsp));
-	__asm__ volatile("mov 16(%%rbp), %0" : "=r" (regs.rip));
-	__asm__ volatile("mov 32(%%rbp), %0" : "=r" (regs.rflags));
+	__asm__ volatile("mov %0, [%%rbp + 40]" : "=r" (regs.rsp));
+	__asm__ volatile("mov %0, [%%rbp + 16]" : "=r" (regs.rip));
+	__asm__ volatile("mov %0, [%%rbp + 32]" : "=r" (regs.rflags));
 
-	__asm__ volatile("movlpd %%xmm0, (%0)\n\t" "movhpd %%xmm0, 8(%0)" : : "r" (&regs.xmm0) : "memory", "xmm0");
-	__asm__ volatile("movlpd %%xmm1, (%0)\n\t" "movhpd %%xmm1, 8(%0)" : : "r" (&regs.xmm1) : "memory", "xmm1");
-	__asm__ volatile("movlpd %%xmm2, (%0)\n\t" "movhpd %%xmm2, 8(%0)" : : "r" (&regs.xmm2) : "memory", "xmm2");
-	__asm__ volatile("movlpd %%xmm3, (%0)\n\t" "movhpd %%xmm3, 8(%0)" : : "r" (&regs.xmm3) : "memory", "xmm3");
-	__asm__ volatile("movlpd %%xmm4, (%0)\n\t" "movhpd %%xmm4, 8(%0)" : : "r" (&regs.xmm4) : "memory", "xmm4");
-	__asm__ volatile("movlpd %%xmm5, (%0)\n\t" "movhpd %%xmm5, 8(%0)" : : "r" (&regs.xmm5) : "memory", "xmm5");
-	__asm__ volatile("movlpd %%xmm6, (%0)\n\t" "movhpd %%xmm6, 8(%0)" : : "r" (&regs.xmm6) : "memory", "xmm6");
-	__asm__ volatile("movlpd %%xmm7, (%0)\n\t" "movhpd %%xmm7, 8(%0)" : : "r" (&regs.xmm7) : "memory", "xmm7");
-	__asm__ volatile("movlpd %%xmm8, (%0)\n\t" "movhpd %%xmm8, 8(%0)" : : "r" (&regs.xmm8) : "memory", "xmm8");
-	__asm__ volatile("movlpd %%xmm9, (%0)\n\t" "movhpd %%xmm9, 8(%0)" : : "r" (&regs.xmm9) : "memory", "xmm9");
-	__asm__ volatile("movlpd %%xmm10, (%0)\n\t" "movhpd %%xmm10, 8(%0)" : : "r" (&regs.xmm10) : "memory", "xmm10");
-	__asm__ volatile("movlpd %%xmm11, (%0)\n\t" "movhpd %%xmm11, 8(%0)" : : "r" (&regs.xmm11) : "memory", "xmm11");
-	__asm__ volatile("movlpd %%xmm12, (%0)\n\t" "movhpd %%xmm12, 8(%0)" : : "r" (&regs.xmm12) : "memory", "xmm12");
-	__asm__ volatile("movlpd %%xmm13, (%0)\n\t" "movhpd %%xmm13, 8(%0)" : : "r" (&regs.xmm13) : "memory", "xmm13");
-	__asm__ volatile("movlpd %%xmm14, (%0)\n\t" "movhpd %%xmm14, 8(%0)" : : "r" (&regs.xmm14) : "memory", "xmm14");
-	__asm__ volatile("movlpd %%xmm15, (%0)\n\t" "movhpd %%xmm15, 8(%0)" : : "r" (&regs.xmm15) : "memory", "xmm15");
+	__asm__ volatile("movlpd [%0], %%xmm0\n\t" "movhpd [%0 + 8], %%xmm0" : : "r" (&regs.xmm0) : "memory", "xmm0");
+	__asm__ volatile("movlpd [%0], %%xmm1\n\t" "movhpd [%0 + 8], %%xmm1" : : "r" (&regs.xmm1) : "memory", "xmm1");
+	__asm__ volatile("movlpd [%0], %%xmm2\n\t" "movhpd [%0 + 8], %%xmm2" : : "r" (&regs.xmm2) : "memory", "xmm2");
+	__asm__ volatile("movlpd [%0], %%xmm3\n\t" "movhpd [%0 + 8], %%xmm3" : : "r" (&regs.xmm3) : "memory", "xmm3");
+	__asm__ volatile("movlpd [%0], %%xmm4\n\t" "movhpd [%0 + 8], %%xmm4" : : "r" (&regs.xmm4) : "memory", "xmm4");
+	__asm__ volatile("movlpd [%0], %%xmm5\n\t" "movhpd [%0 + 8], %%xmm5" : : "r" (&regs.xmm5) : "memory", "xmm5");
+	__asm__ volatile("movlpd [%0], %%xmm6\n\t" "movhpd [%0 + 8], %%xmm6" : : "r" (&regs.xmm6) : "memory", "xmm6");
+	__asm__ volatile("movlpd [%0], %%xmm7\n\t" "movhpd [%0 + 8], %%xmm7" : : "r" (&regs.xmm7) : "memory", "xmm7");
+	__asm__ volatile("movlpd [%0], %%xmm8\n\t" "movhpd [%0 + 8], %%xmm8" : : "r" (&regs.xmm8) : "memory", "xmm8");
+	__asm__ volatile("movlpd [%0], %%xmm9\n\t" "movhpd [%0 + 8], %%xmm9" : : "r" (&regs.xmm9) : "memory", "xmm9");
+	__asm__ volatile("movlpd [%0], %%xmm10\n\t" "movhpd [%0 + 8], %%xmm10" : : "r" (&regs.xmm10) : "memory", "xmm10");
+	__asm__ volatile("movlpd [%0], %%xmm11\n\t" "movhpd [%0 + 8], %%xmm11" : : "r" (&regs.xmm11) : "memory", "xmm11");
+	__asm__ volatile("movlpd [%0], %%xmm12\n\t" "movhpd [%0 + 8], %%xmm12" : : "r" (&regs.xmm12) : "memory", "xmm12");
+	__asm__ volatile("movlpd [%0], %%xmm13\n\t" "movhpd [%0 + 8], %%xmm13" : : "r" (&regs.xmm13) : "memory", "xmm13");
+	__asm__ volatile("movlpd [%0], %%xmm14\n\t" "movhpd [%0 + 8], %%xmm14" : : "r" (&regs.xmm14) : "memory", "xmm14");
+	__asm__ volatile("movlpd [%0], %%xmm15\n\t" "movhpd [%0 + 8], %%xmm15" : : "r" (&regs.xmm15) : "memory", "xmm15");
 
-	__asm__ volatile("mov $0xc0000080, %%rcx" : );
+	__asm__ volatile("mov %%rcx, 0xc0000080" : );
 	__asm__ volatile("rdmsr" : );
-	__asm__ volatile("shl $32, %%rdx" : );
-	__asm__ volatile("or %%rdx, %%rax" : );
+	__asm__ volatile("shl %%rdx, 32" : );
+	__asm__ volatile("or %%rax, %%rdx" : );
 	__asm__ volatile("mov %%rax, %0" : "=r" (regs.msr));
 
-	__asm__ volatile("mov %%cr0, %0" : "=r" (regs.cr0));
-	__asm__ volatile("mov %%cr2, %0" : "=r" (regs.cr2));
-	__asm__ volatile("mov %%cr3, %0" : "=r" (regs.cr3));
-	__asm__ volatile("mov %%cr4, %0" : "=r" (regs.cr4));
-	__asm__ volatile("mov %%cr8, %0" : "=r" (regs.cr8));
+	__asm__ volatile("mov %0, %%cr0" : "=r" (regs.cr0));
+	__asm__ volatile("mov %0, %%cr2" : "=r" (regs.cr2));
+	__asm__ volatile("mov %0, %%cr3" : "=r" (regs.cr3));
+	__asm__ volatile("mov %0, %%cr4" : "=r" (regs.cr4));
+	__asm__ volatile("mov %0, %%cr8" : "=r" (regs.cr8));
 
-	__asm__ volatile("mov 24(%%rbp), %0" : "=r" (regs.cs));
-	__asm__ volatile("mov 48(%%rbp), %0" : "=r" (regs.ss));
-	__asm__ volatile("mov %%ds, %0" : "=r" (regs.ds));
-	__asm__ volatile("mov %%es, %0" : "=r" (regs.es));
-	__asm__ volatile("mov %%fs, %0" : "=r" (regs.fs));
-	__asm__ volatile("mov %%gs, %0" : "=r" (regs.gs));
+	__asm__ volatile("mov %0, [%%rbp + 24]" : "=r" (regs.cs));
+	__asm__ volatile("mov %0, [%%rbp + 48]" : "=r" (regs.ss));
+	__asm__ volatile("mov %0, %%ds" : "=r" (regs.ds));
+	__asm__ volatile("mov %0, %%es" : "=r" (regs.es));
+	__asm__ volatile("mov %0, %%fs" : "=r" (regs.fs));
+	__asm__ volatile("mov %0, %%gs" : "=r" (regs.gs));
 
 	uint64_t index, error;
-	__asm__ volatile("mov 0(%%rbp), %0" : "=r" (index));
-	__asm__ volatile("mov 8(%%rbp), %0" : "=r" (error));
+	__asm__ volatile("mov %0, [%%rbp + 0]" : "=r" (index));
+	__asm__ volatile("mov %0, [%%rbp + 8]" : "=r" (error));
 
 	if (handlers[index]) 
 	{
 		uint64_t size = (sizeof(Registers) | 0xf) + 1;
-		__asm__ volatile("sub %0, %%rsp" : : "r" (size));
+		__asm__ volatile("sub %%rsp, %0" : : "r" (size));
 		handlers[index](regs, error);
 	}
 
@@ -106,42 +106,42 @@ static void isr_common(void)
 		outb(0x0020 /* MASTER_COMMAND */, 0x20 /* COMMAND_EOI */);
 	}
 
-	__asm__ volatile("movlpd (%0), %%xmm0\n\t" "movhpd 8(%0), %%xmm0" : : "r" (&regs.xmm0) : "memory", "xmm0");
-	__asm__ volatile("movlpd (%0), %%xmm1\n\t" "movhpd 8(%0), %%xmm1" : : "r" (&regs.xmm1) : "memory", "xmm1");
-	__asm__ volatile("movlpd (%0), %%xmm2\n\t" "movhpd 8(%0), %%xmm2" : : "r" (&regs.xmm2) : "memory", "xmm2");
-	__asm__ volatile("movlpd (%0), %%xmm3\n\t" "movhpd 8(%0), %%xmm3" : : "r" (&regs.xmm3) : "memory", "xmm3");
-	__asm__ volatile("movlpd (%0), %%xmm4\n\t" "movhpd 8(%0), %%xmm4" : : "r" (&regs.xmm4) : "memory", "xmm4");
-	__asm__ volatile("movlpd (%0), %%xmm5\n\t" "movhpd 8(%0), %%xmm5" : : "r" (&regs.xmm5) : "memory", "xmm5");
-	__asm__ volatile("movlpd (%0), %%xmm6\n\t" "movhpd 8(%0), %%xmm6" : : "r" (&regs.xmm6) : "memory", "xmm6");
-	__asm__ volatile("movlpd (%0), %%xmm7\n\t" "movhpd 8(%0), %%xmm7" : : "r" (&regs.xmm7) : "memory", "xmm7");
-	__asm__ volatile("movlpd (%0), %%xmm8\n\t" "movhpd 8(%0), %%xmm8" : : "r" (&regs.xmm8) : "memory", "xmm8");
-	__asm__ volatile("movlpd (%0), %%xmm9\n\t" "movhpd 8(%0), %%xmm9" : : "r" (&regs.xmm9) : "memory", "xmm9");
-	__asm__ volatile("movlpd (%0), %%xmm10\n\t" "movhpd 8(%0), %%xmm10" : : "r" (&regs.xmm10) : "memory", "xmm10");
-	__asm__ volatile("movlpd (%0), %%xmm11\n\t" "movhpd 8(%0), %%xmm11" : : "r" (&regs.xmm11) : "memory", "xmm11");
-	__asm__ volatile("movlpd (%0), %%xmm12\n\t" "movhpd 8(%0), %%xmm12" : : "r" (&regs.xmm12) : "memory", "xmm12");
-	__asm__ volatile("movlpd (%0), %%xmm13\n\t" "movhpd 8(%0), %%xmm13" : : "r" (&regs.xmm13) : "memory", "xmm13");
-	__asm__ volatile("movlpd (%0), %%xmm14\n\t" "movhpd 8(%0), %%xmm14" : : "r" (&regs.xmm14) : "memory", "xmm14");
-	__asm__ volatile("movlpd (%0), %%xmm15\n\t" "movhpd 8(%0), %%xmm15" : : "r" (&regs.xmm15) : "memory", "xmm15");
+	__asm__ volatile("movlpd %%xmm0, [%0]\n\t" "movhpd %%xmm0, [%0 + 8]" : : "r" (&regs.xmm0) : "memory", "xmm0");
+	__asm__ volatile("movlpd %%xmm1, [%0]\n\t" "movhpd %%xmm1, [%0 + 8]" : : "r" (&regs.xmm1) : "memory", "xmm1");
+	__asm__ volatile("movlpd %%xmm2, [%0]\n\t" "movhpd %%xmm2, [%0 + 8]" : : "r" (&regs.xmm2) : "memory", "xmm2");
+	__asm__ volatile("movlpd %%xmm3, [%0]\n\t" "movhpd %%xmm3, [%0 + 8]" : : "r" (&regs.xmm3) : "memory", "xmm3");
+	__asm__ volatile("movlpd %%xmm4, [%0]\n\t" "movhpd %%xmm4, [%0 + 8]" : : "r" (&regs.xmm4) : "memory", "xmm4");
+	__asm__ volatile("movlpd %%xmm5, [%0]\n\t" "movhpd %%xmm5, [%0 + 8]" : : "r" (&regs.xmm5) : "memory", "xmm5");
+	__asm__ volatile("movlpd %%xmm6, [%0]\n\t" "movhpd %%xmm6, [%0 + 8]" : : "r" (&regs.xmm6) : "memory", "xmm6");
+	__asm__ volatile("movlpd %%xmm7, [%0]\n\t" "movhpd %%xmm7, [%0 + 8]" : : "r" (&regs.xmm7) : "memory", "xmm7");
+	__asm__ volatile("movlpd %%xmm8, [%0]\n\t" "movhpd %%xmm8, [%0 + 8]" : : "r" (&regs.xmm8) : "memory", "xmm8");
+	__asm__ volatile("movlpd %%xmm9, [%0]\n\t" "movhpd %%xmm9, [%0 + 8]" : : "r" (&regs.xmm9) : "memory", "xmm9");
+	__asm__ volatile("movlpd %%xmm10, [%0]\n\t" "movhpd %%xmm10, [%0 + 8]" : : "r" (&regs.xmm10) : "memory", "xmm10");
+	__asm__ volatile("movlpd %%xmm11, [%0]\n\t" "movhpd %%xmm11, [%0 + 8]" : : "r" (&regs.xmm11) : "memory", "xmm11");
+	__asm__ volatile("movlpd %%xmm12, [%0]\n\t" "movhpd %%xmm12, [%0 + 8]" : : "r" (&regs.xmm12) : "memory", "xmm12");
+	__asm__ volatile("movlpd %%xmm13, [%0]\n\t" "movhpd %%xmm13, [%0 + 8]" : : "r" (&regs.xmm13) : "memory", "xmm13");
+	__asm__ volatile("movlpd %%xmm14, [%0]\n\t" "movhpd %%xmm14, [%0 + 8]" : : "r" (&regs.xmm14) : "memory", "xmm14");
+	__asm__ volatile("movlpd %%xmm15, [%0]\n\t" "movhpd %%xmm15, [%0 + 8]" : : "r" (&regs.xmm15) : "memory", "xmm15");
 
-	__asm__ volatile("fxrstor64 (%0)"  : : "r" (fxsave) : "memory");
+	__asm__ volatile("fxrstor64 [%0]"  : : "r" (fxsave) : "memory");
 
-	__asm__ volatile("mov %%rbp, %%rsp" : );
-	__asm__ volatile("add $16, %%rsp" : ); // index + error
+	__asm__ volatile("mov %%rsp, %%rbp" : );
+	__asm__ volatile("add %%rsp, 16" : ); // index + error
 
-	__asm__ volatile("mov %0, %%r15" : : "r" (regs.r15));
-	__asm__ volatile("mov %0, %%r14" : : "r" (regs.r14));
-	__asm__ volatile("mov %0, %%r13" : : "r" (regs.r13));
-	__asm__ volatile("mov %0, %%r12" : : "r" (regs.r12));
-	__asm__ volatile("mov %0, %%r11" : : "r" (regs.r11));
-	__asm__ volatile("mov %0, %%r10" : : "r" (regs.r10));
-	__asm__ volatile("mov %0, %%r9" : : "r" (regs.r9));
-	__asm__ volatile("mov %0, %%r8" : : "r" (regs.r8));
-	__asm__ volatile("mov %0, %%rdi" : : "r" (regs.rdi));
-	__asm__ volatile("mov %0, %%rsi" : : "r" (regs.rsi));
-	__asm__ volatile("mov %0, %%rdx" : : "r" (regs.rdx));
-	__asm__ volatile("mov %0, %%rcx" : : "r" (regs.rcx));
-	__asm__ volatile("mov %0, %%rbx" : : "r" (regs.rbx));
-	__asm__ volatile("mov %0, %%rax" : : "r" (regs.rax));
+	__asm__ volatile("mov %%r15, %0" : : "r" (regs.r15));
+	__asm__ volatile("mov %%r14, %0" : : "r" (regs.r14));
+	__asm__ volatile("mov %%r13, %0" : : "r" (regs.r13));
+	__asm__ volatile("mov %%r12, %0" : : "r" (regs.r12));
+	__asm__ volatile("mov %%r11, %0" : : "r" (regs.r11));
+	__asm__ volatile("mov %%r10, %0" : : "r" (regs.r10));
+	__asm__ volatile("mov %%r9, %0" : : "r" (regs.r9));
+	__asm__ volatile("mov %%r8, %0" : : "r" (regs.r8));
+	__asm__ volatile("mov %%rdi, %0" : : "r" (regs.rdi));
+	__asm__ volatile("mov %%rsi, %0" : : "r" (regs.rsi));
+	__asm__ volatile("mov %%rdx, %0" : : "r" (regs.rdx));
+	__asm__ volatile("mov %%rcx, %0" : : "r" (regs.rcx));
+	__asm__ volatile("mov %%rbx, %0" : : "r" (regs.rbx));
+	__asm__ volatile("mov %%rax, %0" : : "r" (regs.rax));
 
 	__asm__ volatile("iretq");
 }
@@ -672,7 +672,7 @@ static InterruptDescriptorTable table =
 
 void interrupts_enable(void) { __asm__ volatile("sti"); }
 void interrupts_disable(void) { __asm__ volatile("cli"); }
-void interrupts_load(const InterruptDescriptorTable* table) { __asm__ volatile("lidt (%0)" : : "r"(table) : "memory"); }
+void interrupts_load(const InterruptDescriptorTable* table) { __asm__ volatile("lidt [%0]" : : "r"(table) : "memory"); }
 
 void interrupts_set_handler(int index, InterruptHandler handler) 
 {
