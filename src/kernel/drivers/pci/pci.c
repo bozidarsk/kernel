@@ -1,7 +1,6 @@
-#include "pci.h"
-#include "ioport.h"
-#include "console.h"
-#include "eh.h"
+#include "kernel/pci.h"
+#include "kernel/ioport.h"
+#include "kernel/eh.h"
 
 uint32_t pci_read_uint32(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset) 
 {

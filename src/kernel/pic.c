@@ -1,5 +1,5 @@
-#include "pic.h"
-#include "ioport.h"
+#include "kernel/pic.h"
+#include "kernel/ioport.h"
 
 void pic_remap(int offset) 
 {

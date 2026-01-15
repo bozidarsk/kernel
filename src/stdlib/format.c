@@ -1,4 +1,9 @@
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <stdarg.h>
+#include <string.h>
 
 typedef void(*CharPutMethod)(char x, char* buffer, size_t offset, size_t size);
 

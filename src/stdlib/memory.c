@@ -1,4 +1,5 @@
-#include "stdlib.h"
+#include <stdint.h>
+#include <stddef.h>
 
 void* memcpy(void* destination, const void* source, size_t size) 
 {
@@ -11,7 +12,7 @@ void* memcpy(void* destination, const void* source, size_t size)
 	return destination;
 }
 
-void* memset(void* destination, int32_t value, size_t size) 
+void* memset(void* destination, int value, size_t size) 
 {
 	if (!destination)
 		return destination;

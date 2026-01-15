@@ -2,9 +2,8 @@
 #define CONSOLE_H
 
 #include <stdint.h>
-#include <stdbool.h>
 
-#include "eh.h"
+#include "kernel/eh.h"
 
 typedef enum VideMode 
 {

@@ -1,5 +1,5 @@
-#include "ioapic.h"
-#include "apic.h"
+#include "kernel/ioapic.h"
+#include "kernel/apic.h"
 
 uint32_t ioapic_register_read(int offset)
 {

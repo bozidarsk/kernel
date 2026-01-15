@@ -1,6 +1,6 @@
-#include "apic.h"
-#include "cpu.h"
-#include "eh.h"
+#include "kernel/apic.h"
+#include "kernel/cpu.h"
+#include "kernel/eh.h"
 
 void apic_set_base(void* value) 
 {

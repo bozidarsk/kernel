@@ -1,9 +1,8 @@
 #include <efi.h>
 #include <efilib.h>
 #include <elf.h>
-#include <stdint.h>
 
-#include "acpi.h"
+#include "include/kernel/acpi.h"
 
 #define breakpoint() ({ __asm__ volatile("int3"); })
 #define halt() ({ __asm__ volatile("hlt"); })

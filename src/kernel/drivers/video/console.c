@@ -1,11 +1,9 @@
-#include <stdbool.h>
+#include <string.h>
 
-#include "stdlib.h"
-
-#include "console.h"
-#include "fonts.h"
-#include "ioport.h"
-#include "eh.h"
+#include "kernel/console.h"
+#include "kernel/fonts.h"
+#include "kernel/ioport.h"
+#include "kernel/eh.h"
 
 typedef void(*CharPutMethod)(char c, ConsoleColor color);
 

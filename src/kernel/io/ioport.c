@@ -1,4 +1,4 @@
-#include "ioport.h"
+#include "kernel/ioport.h"
 
 void outd(uint16_t port, uint32_t value) { __asm__ volatile("out %0, %1" : : "a" (value), "d" (port)); }
 void outw(uint16_t port, uint16_t value) { __asm__ volatile("out %0, %1" : : "a" (value), "d" (port)); }
