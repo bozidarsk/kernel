@@ -40,7 +40,7 @@ void cpuid_get_vendor(char name[12 + 1])
 	name[12] = 0;
 }
 
-Features cpuid_get_features() 
+Features cpuid_get_features(void) 
 {
 	uint32_t eax, ebx, ecx, edx;
 	cpuid(1, &eax, &ebx, &ecx, &edx);

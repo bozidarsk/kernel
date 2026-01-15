@@ -71,7 +71,7 @@ typedef enum : uint64_t
 
 void cpuid(uint64_t command, uint32_t* eax, uint32_t* ebx, uint32_t* ecx, uint32_t* edx);
 void cpuid_get_vendor(char name[12 + 1]);
-Features cpuid_get_features();
+Features cpuid_get_features(void);
 bool cpuid_has_features(Features features);
 
 #endif

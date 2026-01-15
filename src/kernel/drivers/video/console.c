@@ -18,40 +18,40 @@ static const uint8_t* bitmap;
 static uint8_t consoleColor = 0xf;
 
 void console_set_framebuffer(void* value) { framebuffer = value; }
-void* console_get_framebuffer() { return framebuffer; }
+void* console_get_framebuffer(void) { return framebuffer; }
 
 void console_set_video_mode(VideoMode value) { videoMode = value; }
-VideoMode console_get_video_mode() { return videoMode; }
+VideoMode console_get_video_mode(void) { return videoMode; }
 
 void console_set_color_mode(ColorMode value) { colorMode = value; }
-ColorMode console_get_color_mode() { return colorMode; }
+ColorMode console_get_color_mode(void) { return colorMode; }
 
 void console_set_width(int value) { width = value; }
-int console_get_width() { return width; }
+int console_get_width(void) { return width; }
 
 void console_set_height(int value) { height = value; }
-int console_get_height() { return height; }
+int console_get_height(void) { return height; }
 
 void console_set_char_width(int value) { charWidth = value; }
-int console_get_char_width() { return charWidth; }
+int console_get_char_width(void) { return charWidth; }
 
 void console_set_char_height(int value) { charHeight = value; }
-int console_get_char_height() { return charHeight; }
+int console_get_char_height(void) { return charHeight; }
 
 void console_set_pitch(int value) { pitch = value; }
-int console_get_pitch() { return pitch; }
+int console_get_pitch(void) { return pitch; }
 
 void console_set_depth(int value) { depth = value; }
-int console_get_depth() { return depth; }
+int console_get_depth(void) { return depth; }
 
 void console_set_bitmap(const uint8_t* value) { bitmap = value; }
-const uint8_t* console_get_bitmap() { return bitmap; }
+const uint8_t* console_get_bitmap(void) { return bitmap; }
 
 void console_set_bgcolor(ConsoleColor value) { consoleColor = ((value & 0xf) << 4) | console_get_fgcolor(); }
-ConsoleColor console_get_bgcolor() { return (consoleColor >> 4) & 0xf; }
+ConsoleColor console_get_bgcolor(void) { return (consoleColor >> 4) & 0xf; }
 
 void console_set_fgcolor(ConsoleColor value) { consoleColor = (console_get_bgcolor() << 4) | (value & 0xf); }
-ConsoleColor console_get_fgcolor() { return consoleColor & 0xf; }
+ConsoleColor console_get_fgcolor(void) { return consoleColor & 0xf; }
 
 static void put__VGA_TEXT__B4F4(char c, ConsoleColor color) 
 {
@@ -115,7 +115,7 @@ static void put__SERIAL__(char c, ConsoleColor color)
 	outb(0x3f8, (uint8_t)c);
 }
 
-static CharPutMethod getCharPutMethod() 
+static CharPutMethod getCharPutMethod(void) 
 {
 	switch (videoMode) 
 	{
@@ -169,7 +169,7 @@ void console_scroll(int lines)
 	}
 }
 
-void console_clear() 
+void console_clear(void) 
 {
 	if (videoMode == CONSOLE_VIDEO_MODE_SERIAL)
 		return;

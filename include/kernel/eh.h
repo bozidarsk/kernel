@@ -4,9 +4,9 @@
 #include <stdio.h>
 
 __attribute__((noreturn))
-void halt();
+void halt(void);
 
-void breakpoint();
+void breakpoint(void);
 
 #define throw(exception, message) \
 ({ \

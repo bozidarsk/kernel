@@ -42,31 +42,31 @@ typedef enum : uint8_t
 } ConsoleColor;
 
 void console_set_framebuffer(void* value);
-void* console_get_framebuffer();
+void* console_get_framebuffer(void);
 void console_set_video_mode(VideoMode value);
-VideoMode console_get_video_mode();
+VideoMode console_get_video_mode(void);
 void console_set_color_mode(ColorMode value);
-ColorMode console_get_color_mode();
+ColorMode console_get_color_mode(void);
 void console_set_width(int value);
-int console_get_width();
+int console_get_width(void);
 void console_set_height(int value);
-int console_get_height();
+int console_get_height(void);
 void console_set_char_width(int value);
-int console_get_char_width();
+int console_get_char_width(void);
 void console_set_char_height(int value);
-int console_get_char_height();
+int console_get_char_height(void);
 void console_set_pitch(int value);
-int console_get_pitch();
+int console_get_pitch(void);
 void console_set_depth(int value);
-int console_get_depth();
+int console_get_depth(void);
 void console_set_bitmap(const uint8_t* value);
-const uint8_t* console_get_bitmap();
+const uint8_t* console_get_bitmap(void);
 void console_set_bgcolor(ConsoleColor value);
-ConsoleColor console_get_bgcolor();
+ConsoleColor console_get_bgcolor(void);
 void console_set_fgcolor(ConsoleColor value);
-ConsoleColor console_get_fgcolor();
+ConsoleColor console_get_fgcolor(void);
 
 void console_scroll(int lines);
-void console_clear();
+void console_clear(void);
 
 #endif

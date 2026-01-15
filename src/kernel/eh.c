@@ -1,6 +1,6 @@
 #include "kernel/eh.h"
 
 __attribute__((noreturn))
-void halt() { while (true) __asm__ volatile("hlt"); }
+void halt(void) { while (true) __asm__ volatile("hlt"); }
 
-void breakpoint() { __asm__ volatile("int3"); }
+void breakpoint(void) { __asm__ volatile("int3"); }

@@ -46,8 +46,8 @@ typedef struct
 
 typedef void(*InterruptHandler)(Registers regs, uint64_t error);
 
-void interrupts_enable();
-void interrupts_disable();
+void interrupts_enable(void);
+void interrupts_disable(void);
 void interrupts_load(const InterruptDescriptorTable* table);
 void interrupts_initialize(int cs, int ist);
 void interrupts_set_handler(int index, InterruptHandler handler);
