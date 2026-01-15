@@ -46,10 +46,9 @@ typedef struct
 
 typedef void(*InterruptHandler)(Registers regs, uint64_t error);
 
-#define interrupts_enable() ({ __asm__ volatile("sti"); })
-#define interrupts_disable() ({ __asm__ volatile("cli"); })
-#define interrupts_load(table) ({ __asm__ volatile("lidt (%0)" : : "r"(table) : "memory"); })
-
+void interrupts_enable();
+void interrupts_disable();
+void interrupts_load(const InterruptDescriptorTable* table);
 void interrupts_initialize(int cs, int ist);
 void interrupts_set_handler(int index, InterruptHandler handler);
 InterruptHandler interrupts_get_handler(int index);
