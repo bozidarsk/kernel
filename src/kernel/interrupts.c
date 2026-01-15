@@ -90,7 +90,12 @@ static void isr_common(void)
 	__asm__ volatile("mov 0(%%rbp), %0" : "=r" (index));
 	__asm__ volatile("mov 8(%%rbp), %0" : "=r" (error));
 
-	handlers[index](regs, error);
+	if (handlers[index]) 
+	{
+		uint64_t size = (sizeof(Registers) | 0xf) + 1;
+		__asm__ volatile("sub %0, %%rsp" : : "r" (size));
+		handlers[index](regs, error);
+	}
 
 	int64_t irq = (int64_t)index - 0x20; // pic offset
 	if (irq >= 0 && irq <= 15) 
