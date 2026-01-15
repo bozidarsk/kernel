@@ -66,23 +66,8 @@ void kmain(Elf64_Ehdr* elf, XSDT* xsdt)
 {
 	interrupts_disable();
 
-	// console_set_char_width(8);
-	// console_set_char_height(16);
-	// console_set_width(framebuffer->width / 8);
-	// console_set_height(framebuffer->height / 16);
-	// console_set_pitch(framebuffer->pitch);
-	// console_set_depth(framebuffer->depth);
-	// console_set_framebuffer((void*)framebuffer->address);
-	// console_set_video_mode(CONSOLE_VIDEO_MODE_VGA_GRAPHICS);
-	// console_set_color_mode(CONSOLE_COLOR_MODE_R8G8B8);
-	// console_set_bitmap(fonts_get_bitmap(FONT_NAME_W8H16));
-	// console_clear();
-
 	pic_remap(0x20);
-	pic_disable();
-	// apic_initialize();
-
-	// printf("apic base: %p\n", apic_get_base());
+	pic_enable();
 
 	interrupts_initialize(8, 0);
 	interrupts_set_handler(0x03, &int3);
@@ -92,9 +77,4 @@ void kmain(Elf64_Ehdr* elf, XSDT* xsdt)
 	char vendor[12 + 1];
 	cpuid_get_vendor(vendor);
 	printf("%s\n", vendor);
-
-	pci_enumerate_devices(&pci_print_device);
-
-	printf("a: 0x%-10.16x  b: 0x%.16x  c: 0x%.16llx - %f TEST, %+05d\n", 0xcafebabe, 0xdeadbeef, 0xabcdef0123456789, -3.14, 3);
-	throw(InvalidOperationException, "Cannot return from main.");
 }
