@@ -670,8 +670,8 @@ static InterruptDescriptorTable table =
 	.base = descriptors,
 };
 
-void interrupts_enable() { __asm__ volatile("sti"); }
-void interrupts_disable() { __asm__ volatile("cli"); }
+void interrupts_enable(void) { __asm__ volatile("sti"); }
+void interrupts_disable(void) { __asm__ volatile("cli"); }
 void interrupts_load(const InterruptDescriptorTable* table) { __asm__ volatile("lidt (%0)" : : "r"(table) : "memory"); }
 
 void interrupts_set_handler(int index, InterruptHandler handler) 

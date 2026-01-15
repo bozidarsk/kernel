@@ -171,7 +171,7 @@ void Read(EFI_HANDLE image, const CHAR16* path)
 	if (EFI_ERROR(Status)) Errorf(L"Read(): FileHandle->Close(): %r\n", Status);
 }
 
-void* Load() 
+void* Load(void) 
 {
 	Printf(L"loading elf file '" ELF_PATH "'\n");
 
