@@ -41,7 +41,7 @@ ifeq ($(call exists,f,$(BUILD)/iso/kernel.disk),false)
 endif
 	mcopy -o -i $(BUILD)/iso/kernel.disk $(BUILD)/kernel.bin '::/'
 	mcopy -o -i $(BUILD)/iso/kernel.disk $(BUILD)/BOOTX64.EFI '::/EFI/BOOT'
-	xorriso -as mkisofs -R -f -e kernel.disk -no-emul-boot -o $(BUILD)/kernel.iso $(BUILD)/iso
+	xorriso -as mkisofs -R -f -e kernel.disk -no-emul-boot -o $(BUILD)/kernel.iso $(BUILD)/iso 2> /dev/null
 
 bios:
 	@mkdir -p $(BUILD)
@@ -108,3 +108,5 @@ all: stdlib kernel boot iso bios disk
 
 clean:
 	rm -rf $(BUILD)
+
+.SILENT:
