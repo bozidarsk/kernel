@@ -281,14 +281,14 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 	ExitBootServices(ImageHandle);
 	__asm__ volatile("cli");
 
-	__asm__ volatile("mov %0, %%rsp" : : "r" (tmpstack + sizeof(tmpstack)));
+	__asm__ volatile("mov %%rsp, %0" : : "r" (tmpstack + sizeof(tmpstack)));
 
 	void* entry = Load();
 
-	__asm__ volatile("mov %0, %%rdi" : : "r" (tmpelf));
-	__asm__ volatile("mov %0, %%rsi" : : "r" (sizeof(tmpelf)));
-	__asm__ volatile("mov %0, %%rdx" : : "r" (tmpxsdt));
-	__asm__ volatile("mov %0, %%rcx" : : "r" ((uint64_t)((XSDT*)tmpxsdt)->header.size));
+	__asm__ volatile("mov %%rdi, %0" : : "r" (tmpelf));
+	__asm__ volatile("mov %%rsi, %0" : : "r" (sizeof(tmpelf)));
+	__asm__ volatile("mov %%rdx, %0" : : "r" (tmpxsdt));
+	__asm__ volatile("mov %%rcx, %0" : : "r" ((uint64_t)((XSDT*)tmpxsdt)->header.size));
 	__asm__ volatile("jmp %0" : : "r" (entry));
 
 	while (true) __asm__ volatile("hlt");
