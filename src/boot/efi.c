@@ -2,7 +2,7 @@
 #include <efilib.h>
 #include <elf.h>
 
-#include "include/kernel/acpi.h"
+#include "kernel/acpi.h"
 
 #define breakpoint() ({ __asm__ volatile("int3"); })
 #define halt() ({ __asm__ volatile("hlt"); })
@@ -289,7 +289,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 	__asm__ volatile("mov %0, %%rsi" : : "r" (sizeof(tmpelf)));
 	__asm__ volatile("mov %0, %%rdx" : : "r" (tmpxsdt));
 	__asm__ volatile("mov %0, %%rcx" : : "r" ((uint64_t)((XSDT*)tmpxsdt)->header.size));
-	__asm__ volatile("jmp *%0" : : "r" (entry));
+	__asm__ volatile("jmp %0" : : "r" (entry));
 
 	while (true) __asm__ volatile("hlt");
 }
