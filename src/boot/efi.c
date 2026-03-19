@@ -247,6 +247,37 @@ void ExitBootServices(EFI_HANDLE ImageHandle)
 	ExitedBootServices = true;
 }
 
+uint64_t SaveXSDT(const XSDT* xsdt) 
+{
+	int entries = (xsdt->header.size - sizeof(xsdt->header)) / sizeof(xsdt->pOtherHeaders[0]);
+	uint8_t* address = tmpxsdt;
+
+	if (sizeof(tmpxsdt) < sizeof(SDT))
+		Errorf(L"tmpxsdt too small\n");
+
+	*(SDT*)address = xsdt->header;
+	address += sizeof(SDT);
+
+	address += entries * sizeof(xsdt->pOtherHeaders[0]);
+
+	for (int i = 0; i < entries; i++) 
+	{
+		SDT* header = (SDT*)xsdt->pOtherHeaders[i];
+
+		Printf(L"header with size=%d\n", header->size);
+
+		if (address + header->size > tmpxsdt + sizeof(tmpxsdt))
+			Errorf(L"tmpxsdt too small\n");
+
+		CopyMemory(address, header, header->size);
+
+		((XSDT*)tmpxsdt)->pOtherHeaders[i] = (uint64_t)address;
+		address += header->size;
+	}
+
+	return (uint64_t)address - (uint64_t)tmpxsdt;
+}
+
 EFI_STATUS
 EFIAPI
 efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) 
@@ -254,6 +285,8 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 	InitializeLib(ImageHandle, SystemTable);
 
 	// PrintMemoryMap();
+
+	uint64_t elfSize = sizeof(tmpelf), xsdtSize = 0;
 
 	for (UINTN i = 0; i < SystemTable->NumberOfTableEntries; i++) 
 	{
@@ -263,16 +296,19 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 		if ((*(uint64_t*)SystemTable->ConfigurationTable[i].VendorTable & 0xffffffffffffff) != 0x52545020445352) // RSD PTR
 			continue;
 
+		if (xsdtSize != 0)
+			Errorf(L"found more than 1 xsdp table\n");
+
 		XSDP* xsdp = (XSDP*)SystemTable->ConfigurationTable[i].VendorTable;
 		XSDT* xsdt = (XSDT*)xsdp->xsdtAddress;
 
-		if (xsdt->header.size > sizeof(tmpxsdt))
-			Errorf(L"xsdt->header.size > sizeof(tmpxsdt)\n");
+		xsdtSize = SaveXSDT(xsdt);
 
-		CopyMemory(tmpxsdt, xsdt, xsdt->header.size);
-
-		Printf(L"xsdt found addr=%p size=%d signature=%p\n", xsdt, xsdt->header.size, *(uint64_t*)(&xsdt->header.signature));
+		Printf(L"xsdt found addr=%p size=%u signature=%p\n", xsdt, xsdt->header.size, *(uint64_t*)(&xsdt->header.signature));
 	}
+
+	if (xsdtSize == 0)
+		Errorf(L"could not find xsdp table\n");
 
 	Printf(L"booting '" ELF_PATH "'\n");
 
@@ -286,9 +322,9 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 	void* entry = Load();
 
 	__asm__ volatile("mov %%rdi, %0" : : "r" (tmpelf));
-	__asm__ volatile("mov %%rsi, %0" : : "r" (sizeof(tmpelf)));
+	__asm__ volatile("mov %%rsi, %0" : : "r" (elfSize));
 	__asm__ volatile("mov %%rdx, %0" : : "r" (tmpxsdt));
-	__asm__ volatile("mov %%rcx, %0" : : "r" ((uint64_t)((XSDT*)tmpxsdt)->header.size));
+	__asm__ volatile("mov %%rcx, %0" : : "r" (xsdtSize));
 	__asm__ volatile("jmp %0" : : "r" (entry));
 
 	while (true) __asm__ volatile("hlt");
