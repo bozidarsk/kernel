@@ -1,6 +1,19 @@
 #include "kernel/pic.h"
 #include "kernel/ioport.h"
 
+void pic_sendeoi(int index) 
+{
+	int irq = (int)index - PIC_OFFSET; // pic offset
+
+	if (irq >= 0 && irq <= 15) 
+	{
+		if (irq > 7)
+			outb(PIC_SLAVE_COMMAND, PIC_COMMAND_EOI);
+
+		outb(PIC_MASTER_COMMAND, PIC_COMMAND_EOI);
+	}
+}
+
 void pic_remap(int offset) 
 {
 	outb(PIC_MASTER_COMMAND, PIC_ICW1_INITIALIZE | PIC_ICW1_ICW4); // starts the initialization sequence (in cascade mode)
