@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define PIC_OFFSET 0x20
+
 #define PIC_MASTER_COMMAND 0x0020
 #define PIC_MASTER_DATA 0x0021
 #define PIC_SLAVE_COMMAND 0x00a0
@@ -24,6 +26,7 @@
 #define PIC_COMMAND_READ_IRR 0x0a
 #define PIC_COMMAND_READ_ISR 0x0b
 
+void pic_sendeoi(int index);
 void pic_remap(int offset);
 void pic_mask(uint8_t irq);
 void pic_unmask(uint8_t irq);

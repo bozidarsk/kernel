@@ -1,5 +1,6 @@
 #include "kernel/interrupts.h"
 #include "kernel/ioport.h"
+#include "kernel/pic.h"
 #include "kernel/eh.h"
 
 #define INTERRUPTS_COUNT 256
@@ -98,14 +99,7 @@ static void isr_common(void)
 		handlers[index](regs, error);
 	}
 
-	int64_t irq = (int64_t)index - 0x20; // pic offset
-	if (irq >= 0 && irq <= 15) 
-	{
-		if (irq > 7)
-			outb(0x00a0 /* SLAVE_COMMAND */, 0x20 /* COMMAND_EOI */);
-
-		outb(0x0020 /* MASTER_COMMAND */, 0x20 /* COMMAND_EOI */);
-	}
+	pic_sendeoi(index);
 
 	__asm__ volatile("movlpd %%xmm0, [%0]\n\t" "movhpd %%xmm0, [%0 + 8]" : : "r" (&regs.xmm0) : "memory", "xmm0");
 	__asm__ volatile("movlpd %%xmm1, [%0]\n\t" "movhpd %%xmm1, [%0 + 8]" : : "r" (&regs.xmm1) : "memory", "xmm1");

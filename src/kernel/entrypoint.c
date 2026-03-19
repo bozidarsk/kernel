@@ -74,7 +74,7 @@ void kmain(Elf64_Ehdr* elf, XSDT* xsdt)
 {
 	interrupts_disable();
 
-	pic_remap(0x20);
+	pic_remap(PIC_OFFSET);
 	pic_enable();
 
 	interrupts_initialize(8, 0);
