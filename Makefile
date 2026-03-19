@@ -57,7 +57,7 @@ asmdeps = $(patsubst src/%.asm,$(BUILD)/%.asm.o,$(shell find src/$(1) -type f -p
 deps = $(call cdeps,$(1)) $(call asmdeps,$(1))
 exists = $(shell [ -$(1) $(2) ] && echo true || echo false)
 
-$(BUILD)/%.c.o: $(patsubst $(BUILD)/%.c.o,src/%.c,$(BUILD)/%.c.o)
+$(BUILD)/%.c.o: $(patsubst $(BUILD)/%.c.o,src/%.c,$(BUILD)/%.c.o) $(shell find include/ -type f -path '*.h')
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c '$<' -o '$@'
 
