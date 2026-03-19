@@ -37,6 +37,7 @@ static void isr_common(void)
 	__asm__ volatile("mov %0, %%rbp" : "=r"(regs.rbp));
 
 	__asm__ volatile("mov %%rbp, %%rsp" : );
+	__asm__ volatile("and %%rsp, ~0xf" : );
 
 	// rbp + 0 == index
 	// rbp + 8 == error
@@ -71,7 +72,7 @@ static void isr_common(void)
 	__asm__ volatile("rdmsr" : );
 	__asm__ volatile("shl %%rdx, 32" : );
 	__asm__ volatile("or %%rax, %%rdx" : );
-	__asm__ volatile("mov %%rax, %0" : "=r" (regs.msr));
+	__asm__ volatile("mov %0, %%rax" : "=r" (regs.msr));
 
 	__asm__ volatile("mov %0, %%cr0" : "=r" (regs.cr0));
 	__asm__ volatile("mov %0, %%cr2" : "=r" (regs.cr2));
