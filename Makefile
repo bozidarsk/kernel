@@ -110,6 +110,12 @@ run: kernel boot bios
 debug: kernel boot bios
 	qemu-system-x86_64 $(QEMUFLAGS) -s -S
 
+gdb:
+	gdb $(BUILD)/kernel.bin
+
+objdump:
+	objdump -DM intel $(BUILD)/kernel.bin
+
 all: stdlib kernel boot iso bios disk
 
 clean:
