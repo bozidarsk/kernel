@@ -54,7 +54,7 @@ void int3(Registers regs, uint64_t error)
 
 	printf("cs: %i  ds: %i  ss: %i  es: %i  fs: %i\n", regs.cs, regs.ds, regs.ss, regs.es, regs.fs);
 
-	hlt();
+	halt();
 }
 
 void pci_print_device(CommonHeader header) 
