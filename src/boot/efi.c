@@ -21,7 +21,7 @@ void Printf(const CHAR16* fmt, ...)
 	{
 		va_list args;
 		va_start(args, fmt);
-		Print(fmt, args);
+		VPrint(fmt, args);
 		va_end(args);
 	}
 }
@@ -33,7 +33,7 @@ void Errorf(const CHAR16* message, ...)
 	{
 		va_list args;
 		va_start(args, message);
-		Print(message, args);
+		VPrint(message, args);
 		va_end(args);
 	}
 
@@ -44,7 +44,7 @@ void Errorf(const CHAR16* message, ...)
 	} while (true);
 }
 
-void* CopyMemory(void* destination, void* source, size_t size) 
+void* CopyMemory(void* destination, const void* source, size_t size) 
 {
 	if (!destination || !source)
 		return destination;
