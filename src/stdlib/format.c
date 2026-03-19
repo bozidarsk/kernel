@@ -5,7 +5,15 @@
 #include <stdarg.h>
 #include <string.h>
 
-typedef void(*CharPutMethod)(char x, char* buffer, size_t offset, size_t size);
+typedef struct 
+{
+	char* buffer;
+	size_t bufferSize, offset;
+	int fd;
+	// FILE* file;
+} CharPutData;
+
+typedef void(*CharPutMethod)(char x, CharPutData data);
 
 size_t tostring_string(char* buffer, size_t n, const char* value);
 size_t tostring_char(char* buffer, size_t n, char value);
@@ -34,25 +42,21 @@ static bool contains(const char* str, char x)
 	return false;
 }
 
-static void put_printf(char x, char* buffer, size_t offset, size_t size) 
+static void put_printf(char x, CharPutData data) 
 {
-	(void)buffer;
-	(void)offset;
-	(void)size;
+	(void)data;
 
 	write(1, &x, 1);
 }
 
-static void put_sprintf(char x, char* buffer, size_t offset, size_t size) 
+static void put_sprintf(char x, CharPutData data) 
 {
-	(void)size;
-
-	buffer[offset] = x;
+	data.buffer[data.offset] = x;
 }
 
-static void put_snprintf(char x, char* buffer, size_t offset, size_t size) 
+static void put_snprintf(char x, CharPutData data) 
 {
-	buffer[offset] = (offset + 1 < (size / sizeof(char))) ? x : 0;
+	data.buffer[data.offset] = (data.offset + 1 < (data.bufferSize / sizeof(char))) ? x : 0;
 }
 
 /*
@@ -128,9 +132,9 @@ n      The number of characters written so far is stored into the integer pointe
 m      (glibc extension; supported by uClibc and musl, and on Android from API level 29.)  Print output of strerror(errno) (or strerrorname_np(errno) in the alternate form).  No argument is required.
 %      A '%' is written.  No argument is converted.  The complete conversion specification is '%%'.
 */
-static void put_common(CharPutMethod put, char* buffer, size_t size, const char* format, va_list args) 
+static void put_common(CharPutMethod put, CharPutData data, const char* format, va_list args) 
 {
-	size_t offset = 0;
+	data.offset = 0;
 
 	ssize_t value__nint;
 	size_t value__nuint;
@@ -156,13 +160,15 @@ static void put_common(CharPutMethod put, char* buffer, size_t size, const char*
 	{
 		if (format[i] != '%') 
 		{
-			put(format[i], buffer, offset++, size);
+			put(format[i], data);
+			data.offset++;
 			continue;
 		}
 
 		if (format[i + 1] == '%') 
 		{
-			put('%', buffer, offset++, size);
+			put('%', data);
+			data.offset++;
 			i++;
 			continue;
 		}
@@ -427,35 +433,67 @@ static void put_common(CharPutMethod put, char* buffer, size_t size, const char*
 
 		if (!contains(f, '-')) 
 		{
-			if (contains("idfFeEgG", *conversion) && contains(f, ' ') && string[0] != '-')
-				put(' ', buffer, offset++, size);
+			if (contains("idfFeEgG", *conversion) && contains(f, ' ') && string[0] != '-') 
+			{
+				put(' ', data);
+				data.offset++;
+			}
 
-			if (contains("idfFeEgG", *conversion) && contains(f, '+') && string[0] != '-')
-				put('+', buffer, offset++, size);
+			if (contains("idfFeEgG", *conversion) && contains(f, '+') && string[0] != '-') 
+			{
+				put('+', data);
+				data.offset++;
+			}
 
-			if (w != -1)
-				for (int t = (n == 0) ? 0 : n - 1; t < w; t++)
-					put(padding, buffer, offset++, size);
+			if (w != -1) 
+			{
+				for (int t = (n == 0) ? 0 : n - 1; t < w; t++) 
+				{
+					put(padding, data);
+					data.offset++;
+				}
+			}
 
-			if (n != 0)
-				for (size_t t = 0; t < n - 1; t++)
-					put(string[t], buffer, offset++, size);
+			if (n != 0) 
+			{
+				for (size_t t = 0; t < n - 1; t++) 
+				{
+					put(string[t], data);
+					data.offset++;
+				}
+			}
 		}
 		else 
 		{
-			if (contains("idfFeEgG", *conversion) && contains(f, ' ') && string[0] != '-')
-				put(' ', buffer, offset++, size);
+			if (contains("idfFeEgG", *conversion) && contains(f, ' ') && string[0] != '-') 
+			{
+				put(' ', data);
+				data.offset++;
+			}
 
-			if (contains("idfFeEgG", *conversion) && contains(f, '+') && string[0] != '-')
-				put('+', buffer, offset++, size);
+			if (contains("idfFeEgG", *conversion) && contains(f, '+') && string[0] != '-') 
+			{
+				put('+', data);
+				data.offset++;
+			}
 
-			if (n != 0)
-				for (size_t t = 0; t < n - 1; t++)
-					put(string[t], buffer, offset++, size);
+			if (n != 0) 
+			{
+				for (size_t t = 0; t < n - 1; t++) 
+				{
+					put(string[t], data);
+					data.offset++;
+				}
+			}
 
-			if (w != -1)
-				for (int t = (n == 0) ? 0 : n - 1; t < w; t++)
-					put(padding, buffer, offset++, size);
+			if (w != -1) 
+			{
+				for (int t = (n == 0) ? 0 : n - 1; t < w; t++) 
+				{
+					put(padding, data);
+					data.offset++;
+				}
+			}
 		}
 
 		i--;
@@ -464,24 +502,39 @@ static void put_common(CharPutMethod put, char* buffer, size_t size, const char*
 
 void printf(const char* format, ...) 
 {
+	CharPutData data = 
+	{
+	};
+
 	va_list args;
 	va_start(args, format);
-	put_common(&put_printf, NULL, 0, format, args);
+	put_common(&put_printf, data, format, args);
 	va_end(args);
 }
 
 void sprintf(char* buffer, const char* format, ...) 
 {
+	CharPutData data = 
+	{
+		.buffer = buffer
+	};
+
 	va_list args;
 	va_start(args, format);
-	put_common(&put_sprintf, buffer, 0, format, args);
+	put_common(&put_sprintf, data, format, args);
 	va_end(args);
 }
 
 void snprintf(char* buffer, size_t size, const char* format, ...) 
 {
+	CharPutData data = 
+	{
+		.buffer = buffer,
+		.bufferSize = size
+	};
+
 	va_list args;
 	va_start(args, format);
-	put_common(&put_snprintf, buffer, size, format, args);
+	put_common(&put_snprintf, data, format, args);
 	va_end(args);
 }
