@@ -264,8 +264,6 @@ uint64_t SaveXSDT(const XSDT* xsdt)
 	{
 		SDT* header = (SDT*)xsdt->pOtherHeaders[i];
 
-		Printf(L"header with size=%d\n", header->size);
-
 		if (address + header->size > tmpxsdt + sizeof(tmpxsdt))
 			Errorf(L"tmpxsdt too small\n");
 
