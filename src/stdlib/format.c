@@ -59,6 +59,11 @@ static void put_snprintf(char x, CharPutData data)
 	data.buffer[data.offset] = (data.offset + 1 < (data.bufferSize / sizeof(char))) ? x : 0;
 }
 
+static void put_dprintf(char x, CharPutData data) 
+{
+	write(data.fd, &x, 1);
+}
+
 /*
 %[argument$][flags][width][.precision][length modifier]conversion
 
@@ -536,5 +541,18 @@ void snprintf(char* buffer, size_t size, const char* format, ...)
 	va_list args;
 	va_start(args, format);
 	put_common(&put_snprintf, data, format, args);
+	va_end(args);
+}
+
+void dprintf(int fd, const char* format, ...) 
+{
+	CharPutData data = 
+	{
+		.fd = fd
+	};
+
+	va_list args;
+	va_start(args, format);
+	put_common(&put_dprintf, data, format, args);
 	va_end(args);
 }
