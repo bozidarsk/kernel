@@ -302,7 +302,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 
 		xsdtSize = SaveXSDT(xsdt);
 
-		Printf(L"xsdt found addr=%p size=%u signature=%p\n", xsdt, xsdt->header.size, *(uint64_t*)(&xsdt->header.signature));
+		Printf(L"xsdt found addr=%p size=%u signature=%p\n", xsdt, xsdt->header.size, (uint64_t)xsdt->header.type);
 	}
 
 	if (xsdtSize == 0)
