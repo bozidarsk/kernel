@@ -8,6 +8,6 @@ void breakpoint(void) { __asm__ volatile("int3"); }
 __attribute__((noreturn))
 void abort() 
 {
-	do breakpoint();
-	while (true);
+	breakpoint();
+	halt();
 }
