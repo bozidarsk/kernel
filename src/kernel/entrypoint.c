@@ -98,9 +98,22 @@ static void read_acpi_sdt(SDT* header)
 	}
 }
 
-static void read_pci_device(CommonHeader* header) 
+static void read_pci_device(DeviceHeader* header) 
 {
-	printf("pci device: vendor=%x device=%x class=%d subclass=%d\n", header->vendor, header->device, header->class, header->subclass);
+	printf("pci device: type=%d vendor=%04x device=%04x class=%02x subclass=%04x mf=%d\n", header->type, header->vendor, header->device, header->class, header->subclass, header->hasMultipleFunctions);
+
+	if (header->type != PCI_DEVICE_TYPE_GENERAL)
+		return;
+
+	if (!header->status.capabilitiesList) 
+	{
+		printf("device does not have capabilities list pointer\n");
+		return;
+	}
+
+	GeneralDevice* device = (GeneralDevice*)header;
+
+	printf("cap=%p\n", device->capabilitiesPointer);
 }
 
 // static void setup_console(const Framebuffer* framebuffer) 
