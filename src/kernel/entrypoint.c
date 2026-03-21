@@ -98,6 +98,11 @@ static void read_acpi_sdt(SDT* header)
 	}
 }
 
+static void read_pci_device(CommonHeader* header) 
+{
+	printf("pci device: vendor=%x device=%x class=%d subclass=%d\n", header->vendor, header->device, header->class, header->subclass);
+}
+
 // static void setup_console(const Framebuffer* framebuffer) 
 // {
 // 	assert(framebuffer);
@@ -142,4 +147,6 @@ void kmain(Elf64_Ehdr* elf, XSDT* xsdt)
 	// setup_console(framebuffer);
 	setup_apic(xsdt);
 	setup_interrupts();
+
+	pci_enumerate_devices(&read_pci_device);
 }

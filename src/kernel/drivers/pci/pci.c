@@ -58,7 +58,7 @@ bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, HeaderType* type)
 	return pci_read_uint16(bus, device, function, 0) != 0xffff;
 }
 
-void pci_enumerate_devices(void(*func)(CommonHeader header)) 
+void pci_enumerate_devices(void(*callback)(CommonHeader* header)) 
 {
 	for (int bus = 0; bus < 256; bus++) 
 	{
@@ -76,7 +76,7 @@ void pci_enumerate_devices(void(*func)(CommonHeader header))
 			CommonHeader header;
 			pci_read_header(bus, device, function, &header);
 
-			func(header);
+			callback(&header);
 		}
 	}
 }
