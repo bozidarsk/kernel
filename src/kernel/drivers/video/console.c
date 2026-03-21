@@ -145,7 +145,7 @@ static CharPutMethod getCharPutMethod(void)
 			break;
 	}
 
-	throw(NotImplementedException, "Cannot putc with current video and color modes.");
+	assert(!"Cannot putc with current video and color modes.");
 }
 
 void console_scroll(int lines) 
@@ -157,7 +157,7 @@ void console_scroll(int lines)
 		return;
 	else if (lines > 0) 
 	{
-		throw(NotImplementedException, "Cannot scroll up.");
+		assert(!"Cannot scroll up.");
 	}
 	else if (lines < 0) 
 	{

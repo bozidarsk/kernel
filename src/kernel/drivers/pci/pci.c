@@ -33,8 +33,7 @@ uint8_t pci_read_uint8(uint8_t bus, uint8_t device, uint8_t function, uint8_t of
 
 void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, CommonHeader* header) 
 {
-	if (!header)
-		throw(ArgumentNullException, "Header pointer cannot be null.");
+	assert(header);
 
 	uint8_t offset = 0;
 

@@ -16,8 +16,7 @@ void cpuid(uint64_t command, uint32_t* eax, uint32_t* ebx, uint32_t* ecx, uint32
 
 void cpuid_get_vendor(char name[12 + 1]) 
 {
-	if (!name)
-		throw(ArgumentNullException, "Name buffer cannot be null.");
+	assert(name);
 
 	uint32_t eax, ebx, ecx, edx;
 	cpuid(0, &eax, &ebx, &ecx, &edx);

@@ -18,13 +18,6 @@
 #include "kernel/acpi.h"
 #include "kernel/eh.h"
 
-__attribute__((noreturn))
-void abort() 
-{
-	do breakpoint();
-	while (true);
-}
-
 void int32(Registers regs, uint64_t error) 
 {
 	(void)regs;
