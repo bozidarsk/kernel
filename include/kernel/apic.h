@@ -37,6 +37,7 @@ void apic_set_base(void* value);
 void* apic_get_base(void);
 uint32_t apic_register_read(int offset);
 void apic_register_write(int offset, uint32_t value);
+void apic_sendeoi(int index);
 void apic_initialize(void);
 
 #endif

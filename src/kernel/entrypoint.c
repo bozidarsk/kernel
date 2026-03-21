@@ -65,24 +65,88 @@ void int3(Registers regs, uint64_t error)
 	halt();
 }
 
-void pci_print_device(CommonHeader header) 
+static void read_acpi_madte(MADTEntry* entry) 
 {
-	printf("%p\n", header.subclass);
+	printf("madt entry: type=%d\n", entry->type);
+
+	switch (entry->type) 
+	{
+		case MADT_ENTRY_TYPE_PROCESSOR_LOCAL_APIC:
+			MADTEntryProcessorLocalAPIC* local = (MADTEntryProcessorLocalAPIC*)entry;
+			printf("local apic: processorId=%d apicId=%d enabled=%d\n", local->processorId, local->apicId, local->processorEnabled);
+			break;
+		case MADT_ENTRY_TYPE_IO_APIC:
+			MADTEntryIOAPIC* io = (MADTEntryIOAPIC*)entry;
+			printf("io apic: id=%d address=%p globalSystemInterruptBase=%u\n", io->id, (uint64_t)io->address, io->globalSystemInterruptBase);
+			break;
+		default:
+			break;
+	}
 }
 
-void kmain(Elf64_Ehdr* elf, XSDT* xsdt) 
+static void read_acpi_sdt(SDT* header) 
 {
-	interrupts_disable();
+	printf("sdt: type=%c%c%c%c\n",
+		(header->type >> 0) & 0xff,
+		(header->type >> 8) & 0xff,
+		(header->type >> 16) & 0xff,
+		(header->type >> 24) & 0xff
+	);
+
+	switch (header->type) 
+	{
+		case SDT_TYPE_APIC:
+			MADT* madt = (MADT*)header;
+			printf("madt: localAPICAddress=%p flags=%x\n", (uint64_t)madt->localAPICAddress, (uint32_t)madt->flags);
+			acpi_enumerate_madt(madt, &read_acpi_madte);
+			break;
+		default:
+			break;
+	}
+}
+
+// static void setup_console(const Framebuffer* framebuffer) 
+// {
+// 	assert(framebuffer);
+
+// 	console_set_char_width(8);
+// 	console_set_char_height(16);
+// 	console_set_width(framebuffer->width / 8);
+// 	console_set_height(framebuffer->height / 16);
+// 	console_set_pitch(framebuffer->pitch);
+// 	console_set_depth(framebuffer->depth);
+// 	console_set_framebuffer((void*)framebuffer->address);
+// 	console_set_video_mode(CONSOLE_VIDEO_MODE_VGA_GRAPHICS);
+// 	console_set_color_mode(CONSOLE_COLOR_MODE_R8G8B8);
+// 	console_set_bitmap(fonts_get_bitmap(FONT_NAME_W8H16));
+// 	console_clear();
+// }
+
+static void setup_apic(const XSDT* xsdt) 
+{
+	assert(xsdt);
 
 	pic_remap(PIC_OFFSET);
-	pic_enable();
+	pic_disable();
 
+	acpi_enumerate_xsdt(xsdt, &read_acpi_sdt);
+
+	apic_initialize();
+
+	printf("local apic: base=%p\n", apic_get_base());
+}
+
+static void setup_interrupts(void) 
+{
 	interrupts_initialize(8, 0);
 	interrupts_set_handler(0x03, &int3);
 	interrupts_set_handler(0x20, &int32);
 	interrupts_enable();
+}
 
-	char vendor[12 + 1];
-	cpuid_get_vendor(vendor);
-	printf("%s\n", vendor);
+void kmain(Elf64_Ehdr* elf, XSDT* xsdt) 
+{
+	// setup_console(framebuffer);
+	setup_apic(xsdt);
+	setup_interrupts();
 }
