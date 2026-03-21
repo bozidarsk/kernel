@@ -159,20 +159,20 @@ typedef enum : uint16_t
 	PCI_DEVICE_SUBCLASS_SIGNAL_PROCESSING_CONTROLLER_COMMUNICATION_SYNCHRONIZER = 0x1110,
 	PCI_DEVICE_SUBCLASS_SIGNAL_PROCESSING_CONTROLLER_SIGNAL_PROCESSING_MANAGEMENT = 0x1120,
 	PCI_DEVICE_SUBCLASS_SIGNAL_PROCESSING_CONTROLLER_OTHER = 0x1180,
-} DeviceSubclass;
+} PciDeviceSubclass;
 
 typedef enum : uint8_t
 {
 	PCI_DEVICE_TYPE_GENERAL = 0,
 	PCI_DEVICE_TYPE_PCI_BRIDGE = 1,
 	PCI_DEVICE_TYPE_CARDBUS_BRIDGE = 2,
-} DeviceType;
+} PciDeviceType;
 
 typedef enum 
 {
 	BAR_TYPE_MEMORY = 0,
 	BAR_TYPE_IO = 1,
-} BARType;
+} PciBARType;
 
 typedef struct 
 {
@@ -180,23 +180,23 @@ typedef struct
 	uint32_t type : 2;
 	uint32_t prefetchable : 1;
 	uint32_t address : 28;
-} __attribute__((packed)) MemoryBAR;
+} __attribute__((packed)) PciMemoryBAR;
 
 typedef struct 
 {
 	uint32_t reserved : 2;
 	uint32_t address : 30;
-} __attribute__((packed)) IOBAR;
+} __attribute__((packed)) PciIOBAR;
 
 typedef struct 
 {
 	union 
 	{
-		BARType type : 1; // 0 for memory BAR, 1 for io BAR
-		MemoryBAR memory;
-		IOBAR io;
+		PciBARType type : 1; // 0 for memory BAR, 1 for io BAR
+		PciMemoryBAR memory;
+		PciIOBAR io;
 	};
-} __attribute__((packed)) BAR;
+} __attribute__((packed)) PciBAR;
 
 typedef struct 
 {
@@ -211,7 +211,7 @@ typedef struct
 	uint16_t serrEnable : 1;
 	uint16_t fastBackToBackEnable : 1;
 	uint16_t interruptDisable : 1;
-} __attribute__((packed)) CommandRegister;
+} __attribute__((packed)) PciCommandRegister;
 
 typedef struct 
 {
@@ -227,7 +227,7 @@ typedef struct
 	uint16_t receivedTargetAbort : 1;
 	uint16_t signaledSystemError : 1;
 	uint16_t detectedParityError : 1;
-} __attribute__((packed)) StatusRegister;
+} __attribute__((packed)) PciStatusRegister;
 
 typedef struct 
 {
@@ -235,19 +235,19 @@ typedef struct
 	uint8_t reserved : 2;
 	uint8_t started : 1;
 	uint8_t capable : 1;
-} __attribute__((packed)) BISTRegister;
+} __attribute__((packed)) PciBISTRegister;
 
 typedef struct 
 {
 	uint16_t vendor, device;
-	CommandRegister command;
-	StatusRegister status;
+	PciCommandRegister command;
+	PciStatusRegister status;
 	uint8_t revision;
 	uint8_t progif;
 
 	union 
 	{
-		DeviceSubclass subclass;
+		PciDeviceSubclass subclass;
 		struct 
 		{
 			uint8_t reserved;
@@ -259,32 +259,32 @@ typedef struct
 	uint8_t latencyTimer;
 	struct 
 	{
-		DeviceType type : 7;
+		PciDeviceType type : 7;
 		uint8_t hasMultipleFunctions : 1;
 	};
-	BISTRegister bist;
-} __attribute__((packed)) DeviceHeader;
+	PciBISTRegister bist;
+} __attribute__((packed)) PciDeviceHeader;
 
 typedef struct 
 {
-	DeviceHeader header;
-	BAR BAR0, BAR1, BAR2, BAR3, BAR4, BAR5;
+	PciDeviceHeader header;
+	PciBAR BAR0, BAR1, BAR2, BAR3, BAR4, BAR5;
 	uint32_t cardbusCisPointer;
 	uint16_t subsystemVendor, subsystem;
 	uint32_t expansionROMBase;
 	uint8_t capabilitiesPointer;
 	uint8_t reserved[7];
 	uint8_t interruptLine, interruptPin, minGrant, maxLatency;
-} __attribute__((packed)) GeneralDevice;
+} __attribute__((packed)) PciGeneralDevice;
 
 typedef struct 
 {
-	DeviceHeader header;
-	BAR BAR0, BAR1;
+	PciDeviceHeader header;
+	PciBAR BAR0, BAR1;
 	uint8_t primaryBus, secondaryBus, subordinateBus;
 	uint8_t secondaryLatencyTimer;
 	uint8_t ioBase, ioLimit;
-	StatusRegister secondaryStatus;
+	PciStatusRegister secondaryStatus;
 	uint16_t memoryBase, memoryLimit;
 	uint16_t prefetchableMemoryBase, prefetchableMemoryLimit;
 	uint32_t prefetchableMemoryBaseUpper, prefetchableMemoryLimitUpper; // upper 32 bits
@@ -294,15 +294,15 @@ typedef struct
 	uint32_t expansionROMBase;
 	uint8_t interruptLine, interruptPin;
 	uint16_t bridgeControl;
-} __attribute__((packed)) PCIBridgeDevice;
+} __attribute__((packed)) PciBridgeDevice;
 
 typedef struct 
 {
-	DeviceHeader header;
+	PciDeviceHeader header;
 	uint32_t socketBase;
 	uint8_t capabilitiesPointer;
 	uint8_t reserved;
-	StatusRegister secondaryStatus;
+	PciStatusRegister secondaryStatus;
 	uint8_t pciBus, cardbusBus, subordinateBus;
 	uint8_t cardbusLatencyTimer;
 	uint32_t memoryBaseLower, memoryLimitLower;
@@ -313,16 +313,16 @@ typedef struct
 	uint16_t bridgeControl;
 	uint16_t subsystemDevice, subsystemVendor;
 	uint32_t pcCardLegacyBase;
-} __attribute__((packed)) CardbusBridgeDevice;
+} __attribute__((packed)) PciCardbusBridgeDevice;
 
-bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, DeviceType* type, bool* hasMultipleFunctions);
+bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, PciDeviceType* type, bool* hasMultipleFunctions);
 uint32_t pci_read_uint32(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
 uint16_t pci_read_uint16(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
 uint8_t pci_read_uint8(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
-void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, DeviceHeader* header);
-void pci_read_general_device(uint8_t bus, uint8_t device, uint8_t function, GeneralDevice* generalDevice);
-void pci_read_pci_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PCIBridgeDevice* pciBridgeDevice);
-void pci_read_cardbus_brigde_device(uint8_t bus, uint8_t device, uint8_t function, CardbusBridgeDevice* cardbusBridgeDevice);
-void pci_enumerate_devices(void(*callback)(DeviceHeader* header));
+void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, PciDeviceHeader* header);
+void pci_read_general_device(uint8_t bus, uint8_t device, uint8_t function, PciGeneralDevice* generalDevice);
+void pci_read_pci_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PciBridgeDevice* bridgeDevice);
+void pci_read_cardbus_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PciCardbusBridgeDevice* cardbusBridgeDevice);
+void pci_enumerate_devices(void(*callback)(PciDeviceHeader* header));
 
 #endif

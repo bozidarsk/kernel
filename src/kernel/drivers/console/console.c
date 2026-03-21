@@ -1,9 +1,8 @@
+#include <assert.h>
 #include <string.h>
 
-#include "kernel/console.h"
-#include "kernel/fonts.h"
+#include "drivers/console.h"
 #include "kernel/ioport.h"
-#include "kernel/eh.h"
 
 typedef void(*CharPutMethod)(char c, ConsoleColor color);
 
@@ -11,8 +10,8 @@ static int x = 0;
 static int y = 0;
 
 static void* framebuffer;
-static VideoMode videoMode = CONSOLE_VIDEO_MODE_SERIAL;
-static ColorMode colorMode;
+static ConsoleVideoMode videoMode = CONSOLE_VIDEO_MODE_SERIAL;
+static ConsoleColorMode colorMode;
 static int width, height, charWidth, charHeight, pitch, depth;
 static const uint8_t* bitmap;
 static uint8_t consoleColor = 0xf;
@@ -20,11 +19,11 @@ static uint8_t consoleColor = 0xf;
 void console_set_framebuffer(void* value) { framebuffer = value; }
 void* console_get_framebuffer(void) { return framebuffer; }
 
-void console_set_video_mode(VideoMode value) { videoMode = value; }
-VideoMode console_get_video_mode(void) { return videoMode; }
+void console_set_video_mode(ConsoleVideoMode value) { videoMode = value; }
+ConsoleVideoMode console_get_video_mode(void) { return videoMode; }
 
-void console_set_color_mode(ColorMode value) { colorMode = value; }
-ColorMode console_get_color_mode(void) { return colorMode; }
+void console_set_color_mode(ConsoleColorMode value) { colorMode = value; }
+ConsoleColorMode console_get_color_mode(void) { return colorMode; }
 
 void console_set_width(int value) { width = value; }
 int console_get_width(void) { return width; }
