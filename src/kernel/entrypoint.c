@@ -5,18 +5,18 @@
 
 #include <elf.h>
 
-#include "kernel/console.h"
-#include "kernel/fonts.h"
 #include "kernel/interrupts.h"
 #include "kernel/ioport.h"
 #include "kernel/cpuid.h"
 #include "kernel/cpu.h"
-#include "kernel/pci.h"
 #include "kernel/pic.h"
 #include "kernel/apic.h"
 #include "kernel/ioapic.h"
 #include "kernel/acpi.h"
 #include "kernel/eh.h"
+
+#include "drivers/console.h"
+#include "drivers/pci.h"
 
 void int32(Registers regs, uint64_t error) 
 {
@@ -98,7 +98,7 @@ static void read_acpi_sdt(SDT* header)
 	}
 }
 
-static void read_pci_device(DeviceHeader* header) 
+static void read_pci_device(PciDeviceHeader* header) 
 {
 	printf("pci device: type=%d vendor=%04x device=%04x class=%02x subclass=%04x mf=%d\n", header->type, header->vendor, header->device, header->class, header->subclass, header->hasMultipleFunctions);
 
@@ -111,7 +111,7 @@ static void read_pci_device(DeviceHeader* header)
 		return;
 	}
 
-	GeneralDevice* device = (GeneralDevice*)header;
+	PciGeneralDevice* device = (PciGeneralDevice*)header;
 
 	printf("cap=%p\n", device->capabilitiesPointer);
 }
@@ -129,7 +129,7 @@ static void read_pci_device(DeviceHeader* header)
 // 	console_set_framebuffer((void*)framebuffer->address);
 // 	console_set_video_mode(CONSOLE_VIDEO_MODE_VGA_GRAPHICS);
 // 	console_set_color_mode(CONSOLE_COLOR_MODE_R8G8B8);
-// 	console_set_bitmap(fonts_get_bitmap(FONT_NAME_W8H16));
+// 	console_set_bitmap(console_fonts_get_bitmap(CONSOLE_FONT_NAME_W8H16));
 // 	console_clear();
 // }
 

@@ -1,6 +1,7 @@
-#include "kernel/pci.h"
+#include <assert.h>
+
+#include "drivers/pci.h"
 #include "kernel/ioport.h"
-#include "kernel/eh.h"
 
 uint32_t pci_read_uint32(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset) 
 {
@@ -25,7 +26,7 @@ uint8_t pci_read_uint8(uint8_t bus, uint8_t device, uint8_t function, uint8_t of
 	return (data >> ((offset & 0b11) * 8)) & 0xff;
 }
 
-void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, DeviceHeader* header) 
+void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, PciDeviceHeader* header) 
 {
 	assert(header);
 
@@ -44,13 +45,13 @@ void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, DeviceHeader
 	*(uint8_t*)(&header->bist) = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
 }
 
-void pci_read_general_device(uint8_t bus, uint8_t device, uint8_t function, GeneralDevice* generalDevice) 
+void pci_read_general_device(uint8_t bus, uint8_t device, uint8_t function, PciGeneralDevice* generalDevice) 
 {
 	assert(generalDevice);
 
 	pci_read_header(bus, device, function, &generalDevice->header);
 
-	uint8_t offset = sizeof(DeviceHeader);
+	uint8_t offset = sizeof(PciDeviceHeader);
 
 	*(uint32_t*)(&generalDevice->BAR0) = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
 	*(uint32_t*)(&generalDevice->BAR1) = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
@@ -70,46 +71,46 @@ void pci_read_general_device(uint8_t bus, uint8_t device, uint8_t function, Gene
 	generalDevice->maxLatency = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
 }
 
-void pci_read_pci_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PCIBridgeDevice* pciBridgeDevice) 
+void pci_read_pci_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PciBridgeDevice* bridgeDevice) 
 {
-	assert(pciBridgeDevice);
+	assert(bridgeDevice);
 
-	pci_read_header(bus, device, function, &pciBridgeDevice->header);
+	pci_read_header(bus, device, function, &bridgeDevice->header);
 
-	uint8_t offset = sizeof(DeviceHeader);
+	uint8_t offset = sizeof(PciDeviceHeader);
 
-	*(uint32_t*)(&pciBridgeDevice->BAR0) = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
-	*(uint32_t*)(&pciBridgeDevice->BAR1) = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
-	pciBridgeDevice->primaryBus = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
-	pciBridgeDevice->secondaryBus = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
-	pciBridgeDevice->subordinateBus = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
-	pciBridgeDevice->secondaryLatencyTimer = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
-	pciBridgeDevice->ioBase = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
-	pciBridgeDevice->ioLimit = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
-	*(uint16_t*)(&pciBridgeDevice->secondaryStatus) = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
-	pciBridgeDevice->memoryBase = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
-	pciBridgeDevice->memoryLimit = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
-	pciBridgeDevice->prefetchableMemoryBase = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
-	pciBridgeDevice->prefetchableMemoryLimit = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
-	pciBridgeDevice->prefetchableMemoryBaseUpper = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
-	pciBridgeDevice->prefetchableMemoryLimitUpper = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
-	pciBridgeDevice->ioBaseUpper = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
-	pciBridgeDevice->ioLimitUpper = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
-	pciBridgeDevice->capabilitiesPointer = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
+	*(uint32_t*)(&bridgeDevice->BAR0) = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
+	*(uint32_t*)(&bridgeDevice->BAR1) = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
+	bridgeDevice->primaryBus = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
+	bridgeDevice->secondaryBus = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
+	bridgeDevice->subordinateBus = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
+	bridgeDevice->secondaryLatencyTimer = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
+	bridgeDevice->ioBase = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
+	bridgeDevice->ioLimit = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
+	*(uint16_t*)(&bridgeDevice->secondaryStatus) = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
+	bridgeDevice->memoryBase = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
+	bridgeDevice->memoryLimit = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
+	bridgeDevice->prefetchableMemoryBase = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
+	bridgeDevice->prefetchableMemoryLimit = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
+	bridgeDevice->prefetchableMemoryBaseUpper = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
+	bridgeDevice->prefetchableMemoryLimitUpper = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
+	bridgeDevice->ioBaseUpper = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
+	bridgeDevice->ioLimitUpper = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
+	bridgeDevice->capabilitiesPointer = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
 	offset += 3; // reserved
-	pciBridgeDevice->expansionROMBase = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
-	pciBridgeDevice->interruptLine = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
-	pciBridgeDevice->interruptPin = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
-	pciBridgeDevice->bridgeControl = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
+	bridgeDevice->expansionROMBase = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
+	bridgeDevice->interruptLine = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
+	bridgeDevice->interruptPin = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
+	bridgeDevice->bridgeControl = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
 }
 
-void pci_read_cardbus_brigde_device(uint8_t bus, uint8_t device, uint8_t function, CardbusBridgeDevice* cardbusBridgeDevice) 
+void pci_read_cardbus_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PciCardbusBridgeDevice* cardbusBridgeDevice) 
 {
 	assert(cardbusBridgeDevice);
 
 	pci_read_header(bus, device, function, &cardbusBridgeDevice->header);
 
-	uint8_t offset = sizeof(DeviceHeader);
+	uint8_t offset = sizeof(PciDeviceHeader);
 
 	cardbusBridgeDevice->socketBase = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
 	cardbusBridgeDevice->capabilitiesPointer = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
@@ -135,7 +136,7 @@ void pci_read_cardbus_brigde_device(uint8_t bus, uint8_t device, uint8_t functio
 	cardbusBridgeDevice->pcCardLegacyBase = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
 }
 
-bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, DeviceType* type, bool* hasMultipleFunctions) 
+bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, PciDeviceType* type, bool* hasMultipleFunctions) 
 {
 	uint8_t value = pci_read_uint8(bus, device, function, 14);
 
@@ -145,14 +146,14 @@ bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, DeviceType* type,
 	return pci_read_uint16(bus, device, function, 0) != 0xffff;
 }
 
-void pci_enumerate_devices(void(*callback)(DeviceHeader* header)) 
+void pci_enumerate_devices(void(*callback)(PciDeviceHeader* header)) 
 {
 	for (int bus = 0; bus < 256; bus++) 
 	{
 		for (int device = 0; device < 32; device++) 
 		{
 			int function = 0;
-			DeviceType type;
+			PciDeviceType type;
 			bool hasMultipleFunctions;
 
 			do 
@@ -163,17 +164,17 @@ void pci_enumerate_devices(void(*callback)(DeviceHeader* header))
 				switch (type) 
 				{
 					case PCI_DEVICE_TYPE_GENERAL:
-						GeneralDevice generalDevice;
+						PciGeneralDevice generalDevice;
 						pci_read_general_device(bus, device, function, &generalDevice);
 						callback(&generalDevice.header);
 						break;
 					case PCI_DEVICE_TYPE_PCI_BRIDGE:
-						PCIBridgeDevice pciBridgeDevice;
-						pci_read_pci_brigde_device(bus, device, function, &pciBridgeDevice);
-						callback(&pciBridgeDevice.header);
+						PciBridgeDevice bridgeDevice;
+						pci_read_pci_brigde_device(bus, device, function, &bridgeDevice);
+						callback(&bridgeDevice.header);
 						break;
 					case PCI_DEVICE_TYPE_CARDBUS_BRIDGE:
-						CardbusBridgeDevice cardbusBridgeDevice;
+						PciCardbusBridgeDevice cardbusBridgeDevice;
 						pci_read_cardbus_brigde_device(bus, device, function, &cardbusBridgeDevice);
 						callback(&cardbusBridgeDevice.header);
 						break;

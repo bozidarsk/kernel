@@ -3,14 +3,12 @@
 
 #include <stdint.h>
 
-#include "kernel/eh.h"
-
 typedef enum VideMode 
 {
 	CONSOLE_VIDEO_MODE_SERIAL,
 	CONSOLE_VIDEO_MODE_VGA_TEXT,
 	CONSOLE_VIDEO_MODE_VGA_GRAPHICS,
-} VideoMode;
+} ConsoleVideoMode;
 
 typedef enum 
 {
@@ -19,7 +17,7 @@ typedef enum
 	CONSOLE_COLOR_MODE_RGB565 = CONSOLE_COLOR_MODE_R5G6B5,
 	CONSOLE_COLOR_MODE_R8G8B8,
 	CONSOLE_COLOR_MODE_RGB = CONSOLE_COLOR_MODE_R8G8B8,
-} ColorMode;
+} ConsoleColorMode;
 
 typedef enum : uint8_t
 {
@@ -41,12 +39,19 @@ typedef enum : uint8_t
 	CONSOLE_COLOR_WHITE = 0xf,
 } ConsoleColor;
 
+typedef enum 
+{
+	CONSOLE_FONT_NAME_W8H16,
+} ConsoleFontName;
+
+const uint8_t* console_fonts_get_bitmap(ConsoleFontName name);
+
 void console_set_framebuffer(void* value);
 void* console_get_framebuffer(void);
-void console_set_video_mode(VideoMode value);
-VideoMode console_get_video_mode(void);
-void console_set_color_mode(ColorMode value);
-ColorMode console_get_color_mode(void);
+void console_set_video_mode(ConsoleVideoMode value);
+ConsoleVideoMode console_get_video_mode(void);
+void console_set_color_mode(ConsoleColorMode value);
+ConsoleColorMode console_get_color_mode(void);
 void console_set_width(int value);
 int console_get_width(void);
 void console_set_height(int value);

@@ -1,6 +1,6 @@
 #include <stddef.h>
 
-#include "kernel/fonts.h"
+#include "drivers/console.h"
 
 static const uint8_t W8H16[] = 
 {
@@ -134,11 +134,11 @@ static const uint8_t W8H16[] =
 	0x00,  0x14,  0x2a,  0x2a,  0x14,  0x14,  0x2a,  0x2a,  0x14,  0x14,  0x2a,  0x2a,  0x14,  0x00,  0x00,  0x00,
 };
 
-const uint8_t* fonts_get_bitmap(FontName name) 
+const uint8_t* console_fonts_get_bitmap(ConsoleFontName name) 
 {
 	switch (name) 
 	{
-		case FONT_NAME_W8H16: return W8H16;
+		case CONSOLE_FONT_NAME_W8H16: return W8H16;
 		default: return NULL;
 	}
 }
