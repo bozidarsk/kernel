@@ -671,16 +671,14 @@ void interrupts_load(const InterruptDescriptorTable* table) { __asm__ volatile("
 
 void interrupts_set_handler(int index, InterruptHandler handler) 
 {
-	if (index < 0 || index >= INTERRUPTS_COUNT)
-		throw(ArgumentOutOfRangeException, "Index is out of range.");
+	assert(index >= 0 && index < INTERRUPTS_COUNT);
 
 	handlers[index] = handler;
 }
 
 InterruptHandler interrupts_get_handler(int index) 
 {
-	if (index < 0 || index >= INTERRUPTS_COUNT)
-		throw(ArgumentOutOfRangeException, "Index is out of range.");
+	assert(index >= 0 && index < INTERRUPTS_COUNT);
 
 	return handlers[index];
 }
