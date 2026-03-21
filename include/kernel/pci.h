@@ -240,6 +240,6 @@ uint32_t pci_read_uint32(uint8_t bus, uint8_t device, uint8_t function, uint8_t 
 uint16_t pci_read_uint16(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
 uint8_t pci_read_uint8(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
 void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, CommonHeader* header);
-void pci_enumerate_devices(void(*func)(CommonHeader header));
+void pci_enumerate_devices(void(*callback)(CommonHeader* header));
 
 #endif
