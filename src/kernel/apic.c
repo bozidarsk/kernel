@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "kernel/apic.h"
 #include "kernel/cpu.h"
 #include "kernel/eh.h"
@@ -36,10 +38,16 @@ void apic_register_write(int offset, uint32_t value)
 	*(volatile uint32_t*)((volatile uint8_t*)base + offset) = value;
 }
 
+void apic_sendeoi(int index) 
+{
+	(void)index;
+
+	apic_register_write(APIC_REGISTER_OFFSET_EOI, 0);
+}
+
 void apic_initialize(void) 
 {
-	if (!cpuid_has_features(CPUID_FEATURES_APIC))
-		throw(InvalidOperationException, "Cpu does not support apic.");
+	assert(cpuid_has_features(CPUID_FEATURES_APIC));
 
 	apic_set_base(apic_get_base());
 

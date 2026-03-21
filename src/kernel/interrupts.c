@@ -1,6 +1,6 @@
 #include "kernel/interrupts.h"
 #include "kernel/ioport.h"
-#include "kernel/pic.h"
+#include "kernel/apic.h"
 #include "kernel/eh.h"
 
 #define INTERRUPTS_COUNT 256
@@ -99,7 +99,7 @@ static void isr_common(void)
 		handlers[index](regs, error);
 	}
 
-	pic_sendeoi(index);
+	apic_sendeoi(index);
 
 	__asm__ volatile("movlpd %%xmm0, [%0]\n\t" "movhpd %%xmm0, [%0 + 8]" : : "r" (&regs.xmm0) : "memory", "xmm0");
 	__asm__ volatile("movlpd %%xmm1, [%0]\n\t" "movhpd %%xmm1, [%0 + 8]" : : "r" (&regs.xmm1) : "memory", "xmm1");
