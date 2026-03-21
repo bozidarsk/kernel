@@ -163,10 +163,40 @@ typedef enum : uint16_t
 
 typedef enum : uint8_t
 {
-	PCI_HEADER_TYPE_GENERAL = 0,
-	PCI_HEADER_TYPE_PCI_TO_PCI_BRIDGE = 1,
-	PCI_HEADER_TYPE_PCI_TO_CARD_BUS_BRIDGE = 2,
-} HeaderType;
+	PCI_DEVICE_TYPE_GENERAL = 0,
+	PCI_DEVICE_TYPE_PCI_BRIDGE = 1,
+	PCI_DEVICE_TYPE_CARDBUS_BRIDGE = 2,
+} DeviceType;
+
+typedef enum 
+{
+	BAR_TYPE_MEMORY = 0,
+	BAR_TYPE_IO = 1,
+} BARType;
+
+typedef struct 
+{
+	uint32_t reserved : 1;
+	uint32_t type : 2;
+	uint32_t prefetchable : 1;
+	uint32_t address : 28;
+} __attribute__((packed)) MemoryBAR;
+
+typedef struct 
+{
+	uint32_t reserved : 2;
+	uint32_t address : 30;
+} __attribute__((packed)) IOBAR;
+
+typedef struct 
+{
+	union 
+	{
+		BARType type : 1; // 0 for memory BAR, 1 for io BAR
+		MemoryBAR memory;
+		IOBAR io;
+	};
+} __attribute__((packed)) BAR;
 
 typedef struct 
 {
@@ -201,6 +231,14 @@ typedef struct
 
 typedef struct 
 {
+	uint8_t exitCode : 4;
+	uint8_t reserved : 2;
+	uint8_t started : 1;
+	uint8_t capable : 1;
+} __attribute__((packed)) BISTRegister;
+
+typedef struct 
+{
 	uint16_t vendor, device;
 	CommandRegister command;
 	StatusRegister status;
@@ -219,27 +257,72 @@ typedef struct
 
 	uint8_t cacheLineSize;
 	uint8_t latencyTimer;
-	HeaderType headerType;
-	uint8_t bist;
-} __attribute__((packed)) CommonHeader;
+	struct 
+	{
+		DeviceType type : 7;
+		uint8_t hasMultipleFunctions : 1;
+	};
+	BISTRegister bist;
+} __attribute__((packed)) DeviceHeader;
 
 typedef struct 
 {
-	CommonHeader base;
-	uint32_t BAR0, BAR1, BAR2, BAR3, BAR4, BAR5;
+	DeviceHeader header;
+	BAR BAR0, BAR1, BAR2, BAR3, BAR4, BAR5;
 	uint32_t cardbusCisPointer;
 	uint16_t subsystemVendor, subsystem;
-	uint32_t expansionROMPointer;
+	uint32_t expansionROMBase;
 	uint8_t capabilitiesPointer;
 	uint8_t reserved[7];
 	uint8_t interruptLine, interruptPin, minGrant, maxLatency;
 } __attribute__((packed)) GeneralDevice;
 
-bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, HeaderType* type);
+typedef struct 
+{
+	DeviceHeader header;
+	BAR BAR0, BAR1;
+	uint8_t primaryBus, secondaryBus, subordinateBus;
+	uint8_t secondaryLatencyTimer;
+	uint8_t ioBase, ioLimit;
+	StatusRegister secondaryStatus;
+	uint16_t memoryBase, memoryLimit;
+	uint16_t prefetchableMemoryBase, prefetchableMemoryLimit;
+	uint32_t prefetchableMemoryBaseUpper, prefetchableMemoryLimitUpper; // upper 32 bits
+	uint16_t ioBaseUpper, ioLimitUpper;
+	uint8_t capabilitiesPointer;
+	uint8_t reserved[3];
+	uint32_t expansionROMBase;
+	uint8_t interruptLine, interruptPin;
+	uint16_t bridgeControl;
+} __attribute__((packed)) PCIBridgeDevice;
+
+typedef struct 
+{
+	DeviceHeader header;
+	uint32_t socketBase;
+	uint8_t capabilitiesPointer;
+	uint8_t reserved;
+	StatusRegister secondaryStatus;
+	uint8_t pciBus, cardbusBus, subordinateBus;
+	uint8_t cardbusLatencyTimer;
+	uint32_t memoryBaseLower, memoryLimitLower;
+	uint32_t memoryBaseUpper, memoryLimitUpper;
+	uint32_t ioBaseLower, ioLimitLower;
+	uint32_t ioBaseUpper, ioLimitUpper;
+	uint8_t interruptLine, interruptPin;
+	uint16_t bridgeControl;
+	uint16_t subsystemDevice, subsystemVendor;
+	uint32_t pcCardLegacyBase;
+} __attribute__((packed)) CardbusBridgeDevice;
+
+bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, DeviceType* type, bool* hasMultipleFunctions);
 uint32_t pci_read_uint32(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
 uint16_t pci_read_uint16(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
 uint8_t pci_read_uint8(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
-void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, CommonHeader* header);
-void pci_enumerate_devices(void(*callback)(CommonHeader* header));
+void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, DeviceHeader* header);
+void pci_read_general_device(uint8_t bus, uint8_t device, uint8_t function, GeneralDevice* generalDevice);
+void pci_read_pci_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PCIBridgeDevice* pciBridgeDevice);
+void pci_read_cardbus_brigde_device(uint8_t bus, uint8_t device, uint8_t function, CardbusBridgeDevice* cardbusBridgeDevice);
+void pci_enumerate_devices(void(*callback)(DeviceHeader* header));
 
 #endif
