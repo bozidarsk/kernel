@@ -104,10 +104,10 @@ ifeq ($(call exists,f,$(BUILD)/drive.disk),false)
 	dd if=/dev/zero of=$(BUILD)/drive.disk bs=512 count=20480 2> /dev/null
 endif
 
-run: kernel boot bios
+run: kernel boot bios iso disk
 	qemu-system-x86_64 $(QEMUFLAGS)
 
-debug: kernel boot bios
+debug: kernel boot bios iso disk
 	qemu-system-x86_64 $(QEMUFLAGS) -s -S
 
 gdb:
