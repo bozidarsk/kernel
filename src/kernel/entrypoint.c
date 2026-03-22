@@ -12,11 +12,11 @@
 #include "kernel/pic.h"
 #include "kernel/apic.h"
 #include "kernel/ioapic.h"
-#include "kernel/acpi.h"
 #include "kernel/eh.h"
 
-#include "drivers/console.h"
-#include "drivers/pci.h"
+#include "kernel/drivers.h"
+#include "bus/acpi.h"
+#include "bus/pci.h"
 
 void int32(Registers regs, uint64_t error) 
 {
@@ -105,15 +105,12 @@ static void read_pci_device(PciDeviceHeader* header)
 	if (header->type != PCI_DEVICE_TYPE_GENERAL)
 		return;
 
-	if (!header->status.capabilitiesList) 
-	{
-		printf("device does not have capabilities list pointer\n");
+	Driver* driver = drivers_load(header);
+
+	if (!driver)
 		return;
-	}
 
-	PciGeneralDevice* device = (PciGeneralDevice*)header;
-
-	printf("cap=%p\n", device->capabilitiesPointer);
+	printf("driver: type=%d bus=%d name=%s\n", driver->type, driver->bus, driver->name);
 }
 
 // static void setup_console(const Framebuffer* framebuffer) 
