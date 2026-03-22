@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <assert.h>
 
-#include "kernel/acpi.h"
+#include "bus/acpi.h"
 
 void acpi_enumerate_xsdt(const XSDT* xsdt, void(*callback)(SDT* header)) 
 {

@@ -2,7 +2,7 @@
 #include <efilib.h>
 #include <elf.h>
 
-#include "kernel/acpi.h"
+#include "bus/acpi.h"
 
 #define breakpoint() ({ __asm__ volatile("int3"); })
 #define halt() ({ __asm__ volatile("hlt"); })
