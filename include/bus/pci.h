@@ -170,8 +170,8 @@ typedef enum : uint8_t
 
 typedef enum 
 {
-	BAR_TYPE_MEMORY = 0,
-	BAR_TYPE_IO = 1,
+	PCI_BAR_TYPE_MEMORY = 0,
+	PCI_BAR_TYPE_IO = 1,
 } PciBARType;
 
 typedef struct 
