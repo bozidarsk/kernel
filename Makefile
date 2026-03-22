@@ -2,7 +2,7 @@ BUILD = build
 
 CC = x86_64-linux-gnu-gcc
 ASM = nasm
-CFLAGS = -ffreestanding -fno-stack-protector -maccumulate-outgoing-args -fno-stack-check -fno-pic -fno-pie -finline -fshort-wchar -masm=intel -mno-red-zone -msse4.2 -mno-avx -nostdinc -Wall -Wextra -std=c23 -I include
+CFLAGS = -ffreestanding -fno-stack-protector -maccumulate-outgoing-args -fno-stack-check -fno-pic -fno-pie -finline -fshort-wchar -masm=intel -mno-red-zone -msse4.2 -mno-avx -nostdinc -Wall -Wextra -std=c23 -I include -Wno-switch
 ASMFLAGS = -f elf64
 LDFLAGS = -nostdlib -znocombreloc -static -no-pie -L $(BUILD)
 
