@@ -3,6 +3,8 @@
 
 #include "kernel/drivers.h"
 
+#include "drivers/e1000e.h"
+
 static NetworkDevice netdevs[5];
 
 NetworkDevice* drivers_get_netdev(void) 
@@ -18,34 +20,37 @@ void drivers_unload(Driver* driver)
 {
 	driver->isLoaded = false;
 
-	// potential cleanup (ex. ((NetworkDevice*)driver)->free() )
+	// potential cleanup
 }
 
-#define X(x) for (size_t i = 0; i < countof(x); i++) { if (!x[i].driver.isLoaded) driver = &x[i].driver; }
+#define X(x) for (size_t i = 0; i < countof(x); i++) { if (!x[i].driver.isLoaded) { device = &x[i]; driver = &x[i].driver; } }
 
-Driver* drivers_load_pci(PciDeviceHeader* header) 
+Driver* drivers_load_pci(PciGeneralDevice* pciDevice) 
 {
-	assert(header);
+	assert(pciDevice);
 
+	void* device = NULL;
 	Driver* driver = NULL;
-	switch (header->class) 
+
+	switch (pciDevice->header.class) 
 	{
 		case PCI_DEVICE_CLASS_NETWORK_CONTROLLER:
 			X(netdevs)
+			if (driver) driver->type = DRIVER_TYPE_NETWORK;
 			break;
 	}
 
 	if (!driver)
 		return NULL;
 
-	// check vendor and device and match to corresponding driver (ex. e1000e)
+	driver->bus = DRIVER_BUS_PCI;
+	driver->source.pciDevice = pciDevice;
 
-	uint32_t id = *(uint32_t*)header;
-	switch (id) 
+	switch (*(uint32_t*)pciDevice) 
 	{
 		case 0x10d38086:
 			driver->name = "e1000e";
-			// init
+			e1000e_initialize((NetworkDevice*)device);
 			break;
 	}
 

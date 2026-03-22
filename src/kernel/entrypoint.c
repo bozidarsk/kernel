@@ -105,7 +105,7 @@ static void read_pci_device(PciDeviceHeader* header)
 	if (header->type != PCI_DEVICE_TYPE_GENERAL)
 		return;
 
-	Driver* driver = drivers_load(header);
+	Driver* driver = drivers_load((PciGeneralDevice*)header);
 
 	if (!driver)
 		return;
