@@ -1,8 +1,10 @@
 #include <efi.h>
 #include <efilib.h>
 #include <elf.h>
+#include <stdint.h>
 
 #include "bus/acpi.h"
+#include "efibind.h"
 
 #define breakpoint() ({ __asm__ volatile("int3"); })
 #define halt() ({ __asm__ volatile("hlt"); })
@@ -288,7 +290,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 
 	for (UINTN i = 0; i < SystemTable->NumberOfTableEntries; i++)
 	{
-		if (!CompareGuid(&(SystemTable->ConfigurationTable[i].VendorGuid), &AcpiTableGuid))
+		if (CompareGuid(&(SystemTable->ConfigurationTable[i].VendorGuid), &AcpiTableGuid))
 			continue;
 
 		if ((*(uint64_t*)SystemTable->ConfigurationTable[i].VendorTable & 0xffffffffffffff) != 0x52545020445352) // RSD PTR
@@ -298,6 +300,10 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 			Errorf(L"found more than 1 xsdp table\n");
 
 		XSDP* xsdp = (XSDP*)SystemTable->ConfigurationTable[i].VendorTable;
+
+		if (xsdp->revision != 2)
+			continue;
+
 		XSDT* xsdt = (XSDT*)xsdp->xsdtAddress;
 
 		xsdtSize = SaveXSDT(xsdt);
