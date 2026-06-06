@@ -168,13 +168,13 @@ typedef enum : uint8_t
 	PCI_DEVICE_TYPE_CARDBUS_BRIDGE = 2,
 } PciDeviceType;
 
-typedef enum 
+typedef enum
 {
 	PCI_BAR_TYPE_MEMORY = 0,
 	PCI_BAR_TYPE_IO = 1,
 } PciBARType;
 
-typedef struct 
+typedef struct
 {
 	uint32_t reserved : 1;
 	uint32_t type : 2;
@@ -182,15 +182,15 @@ typedef struct
 	uint32_t address : 28;
 } __attribute__((packed)) PciMemoryBAR;
 
-typedef struct 
+typedef struct
 {
 	uint32_t reserved : 2;
 	uint32_t address : 30;
 } __attribute__((packed)) PciIOBAR;
 
-typedef struct 
+typedef struct
 {
-	union 
+	union
 	{
 		PciBARType type : 1; // 0 for memory BAR, 1 for io BAR
 		PciMemoryBAR memory;
@@ -198,7 +198,7 @@ typedef struct
 	};
 } __attribute__((packed)) PciBAR;
 
-typedef struct 
+typedef struct
 {
 	uint16_t ioSpace : 1;
 	uint16_t memorySpace : 1;
@@ -213,7 +213,7 @@ typedef struct
 	uint16_t interruptDisable : 1;
 } __attribute__((packed)) PciCommandRegister;
 
-typedef struct 
+typedef struct
 {
 	uint16_t reserved0 : 3;
 	uint16_t interruptStatus : 1;
@@ -229,7 +229,7 @@ typedef struct
 	uint16_t detectedParityError : 1;
 } __attribute__((packed)) PciStatusRegister;
 
-typedef struct 
+typedef struct
 {
 	uint8_t exitCode : 4;
 	uint8_t reserved : 2;
@@ -237,7 +237,7 @@ typedef struct
 	uint8_t capable : 1;
 } __attribute__((packed)) PciBISTRegister;
 
-typedef struct 
+typedef struct
 {
 	uint16_t vendor, device;
 	PciCommandRegister command;
@@ -245,10 +245,10 @@ typedef struct
 	uint8_t revision;
 	uint8_t progif;
 
-	union 
+	union
 	{
 		PciDeviceSubclass subclass;
-		struct 
+		struct
 		{
 			uint8_t reserved;
 			DeviceClass class;
@@ -257,7 +257,7 @@ typedef struct
 
 	uint8_t cacheLineSize;
 	uint8_t latencyTimer;
-	struct 
+	struct
 	{
 		PciDeviceType type : 7;
 		uint8_t hasMultipleFunctions : 1;
@@ -265,7 +265,7 @@ typedef struct
 	PciBISTRegister bist;
 } __attribute__((packed)) PciDeviceHeader;
 
-typedef struct 
+typedef struct
 {
 	PciDeviceHeader header;
 	PciBAR BAR0, BAR1, BAR2, BAR3, BAR4, BAR5;
@@ -277,7 +277,7 @@ typedef struct
 	uint8_t interruptLine, interruptPin, minGrant, maxLatency;
 } __attribute__((packed)) PciGeneralDevice;
 
-typedef struct 
+typedef struct
 {
 	PciDeviceHeader header;
 	PciBAR BAR0, BAR1;
@@ -296,7 +296,7 @@ typedef struct
 	uint16_t bridgeControl;
 } __attribute__((packed)) PciBridgeDevice;
 
-typedef struct 
+typedef struct
 {
 	PciDeviceHeader header;
 	uint32_t socketBase;

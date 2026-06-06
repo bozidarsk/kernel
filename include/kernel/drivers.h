@@ -7,7 +7,7 @@
 
 #include "bus/pci.h"
 
-typedef enum 
+typedef enum
 {
 	DRIVER_TYPE_NETWORK,
 	DRIVER_TYPE_VIDEO,
@@ -17,7 +17,7 @@ typedef enum
 	DRIVER_TYPE_CONSOLE,
 } DriverType;
 
-typedef enum 
+typedef enum
 {
 	DRIVER_BUS_PCI,
 	DRIVER_BUS_PCIE,
@@ -25,19 +25,19 @@ typedef enum
 	DRIVER_BUS_SERIAL,
 } DriverBus;
 
-typedef struct 
+typedef struct
 {
 	DriverType type;
 	DriverBus bus;
 	bool isLoaded;
 	const char* name;
-	union  
+	union
 	{
 		PciGeneralDevice* pciDevice;
 	} source; // the argument that has been used by drivers_load_* to initialize this driver
 } Driver;
 
-typedef struct 
+typedef struct
 {
 	Driver driver;
 	void(*transceive)(void* data, size_t size);

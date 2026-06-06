@@ -11,7 +11,7 @@
 #define IOEERD 0x0014
 #define IOIMS 0x00d0
 
-typedef struct 
+typedef struct
 {
 	uint32_t FD : 1;
 	uint32_t reserverd0 : 1;
@@ -25,7 +25,7 @@ typedef struct
 	uint32_t FRCSPD : 1;
 	uint32_t FRCDPLX : 1;
 	uint32_t reserverd4 : 5;
-	union 
+	union
 	{
 		uint32_t SDP0_DATA : 1;
 		uint32_t DUDStatus : 1;
@@ -44,7 +44,7 @@ typedef struct
 	uint32_t PHY_RST : 1;
 } DeviceControlRegister, CTRL;
 
-typedef struct 
+typedef struct
 {
 	uint32_t FD : 1;
 	uint32_t LU : 1;
@@ -59,7 +59,7 @@ typedef struct
 	uint32_t reserverd1 : 12;
 } DeviceStatusRegister, STATUS;
 
-typedef struct 
+typedef struct
 {
 	uint32_t EE_SK : 1;
 	uint32_t EE_CS : 1;
@@ -80,7 +80,7 @@ typedef struct
 	uint32_t reserverd2 : 7;
 } EEPROMControlRegister, EEC;
 
-typedef struct 
+typedef struct
 {
 	uint32_t START : 1;
 	uint32_t DONE : 1;
@@ -88,7 +88,7 @@ typedef struct
 	uint32_t DATA : 16;
 } EEPROMReadRegister, EERD;
 
-typedef struct 
+typedef struct
 {
 	uint32_t START : 1;
 	uint32_t DONE : 1;
@@ -96,7 +96,7 @@ typedef struct
 	uint32_t DATA : 16;
 } EEPROMWriteRegister, EEWR;
 
-typedef struct 
+typedef struct
 {
 	uint32_t reserverd0 : 1;
 	uint32_t EN : 1;
@@ -113,7 +113,7 @@ typedef struct
 	uint32_t reserverd3 : 3;
 } TransmitControlRegister, TCTL;
 
-typedef struct 
+typedef struct
 {
 	uint32_t reserverd0 : 1;
 	uint32_t EN : 1;
@@ -141,7 +141,7 @@ typedef struct
 	uint32_t reserverd4 : 1;
 } ReceiveControlRegister, RCTL;
 
-typedef struct 
+typedef struct
 {
 	uint32_t TXDW : 1;
 	uint32_t TXQE : 1;

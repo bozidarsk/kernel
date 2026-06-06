@@ -5,11 +5,11 @@
 
 #include "registers.h"
 
-static void e1000e_write(PciBAR bar, uint16_t offset, uint32_t value) 
+static void e1000e_write(PciBAR bar, uint16_t offset, uint32_t value)
 {
 	if (bar.type == PCI_BAR_TYPE_MEMORY)
 		*(uint32_t*)((uint64_t)bar.memory.address + (uint64_t)offset) = value;
-	else 
+	else
 	{
 		uint16_t address = bar.io.address;
 		outd(address + IOADDR, offset);
@@ -17,11 +17,11 @@ static void e1000e_write(PciBAR bar, uint16_t offset, uint32_t value)
 	}
 }
 
-static uint32_t e1000e_read(PciBAR bar, uint16_t offset) 
+static uint32_t e1000e_read(PciBAR bar, uint16_t offset)
 {
 	if (bar.type == PCI_BAR_TYPE_MEMORY)
 		return *(uint32_t*)((uint64_t)bar.memory.address + (uint64_t)offset);
-	else 
+	else
 	{
 		uint16_t address = bar.io.address;
 		outd(address + IOADDR, offset);
@@ -29,7 +29,7 @@ static uint32_t e1000e_read(PciBAR bar, uint16_t offset)
 	}
 }
 
-static uint16_t e1000e_eeprom_read(PciBAR bar, uint8_t address) 
+static uint16_t e1000e_eeprom_read(PciBAR bar, uint8_t address)
 {
 	EEC eec;
 
@@ -38,7 +38,7 @@ static uint16_t e1000e_eeprom_read(PciBAR bar, uint8_t address)
 	assert(eec.EE_PRES);
 }
 
-void e1000e_initialize(NetworkDevice* dev) 
+void e1000e_initialize(NetworkDevice* dev)
 {
 	assert(dev);
 	assert(dev->driver.type == DRIVER_TYPE_NETWORK);

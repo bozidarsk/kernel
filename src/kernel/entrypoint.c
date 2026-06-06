@@ -18,7 +18,7 @@
 #include "bus/acpi.h"
 #include "bus/pci.h"
 
-void int32(Registers regs, uint64_t error) 
+void int32(Registers regs, uint64_t error)
 {
 	(void)regs;
 	(void)error;
@@ -26,7 +26,7 @@ void int32(Registers regs, uint64_t error)
 }
 
 __attribute__((noreturn))
-void int3(Registers regs, uint64_t error) 
+void int3(Registers regs, uint64_t error)
 {
 	(void)error;
 
@@ -58,11 +58,11 @@ void int3(Registers regs, uint64_t error)
 	halt();
 }
 
-static void read_acpi_madte(MADTEntry* entry) 
+static void read_acpi_madte(MADTEntry* entry)
 {
 	printf("madt entry: type=%d\n", entry->type);
 
-	switch (entry->type) 
+	switch (entry->type)
 	{
 		case MADT_ENTRY_TYPE_PROCESSOR_LOCAL_APIC:
 			MADTEntryProcessorLocalAPIC* local = (MADTEntryProcessorLocalAPIC*)entry;
@@ -77,7 +77,7 @@ static void read_acpi_madte(MADTEntry* entry)
 	}
 }
 
-static void read_acpi_sdt(SDT* header) 
+static void read_acpi_sdt(SDT* header)
 {
 	printf("sdt: type=%c%c%c%c\n",
 		(header->type >> 0) & 0xff,
@@ -86,7 +86,7 @@ static void read_acpi_sdt(SDT* header)
 		(header->type >> 24) & 0xff
 	);
 
-	switch (header->type) 
+	switch (header->type)
 	{
 		case SDT_TYPE_APIC:
 			MADT* madt = (MADT*)header;
@@ -98,7 +98,7 @@ static void read_acpi_sdt(SDT* header)
 	}
 }
 
-static void read_pci_device(PciDeviceHeader* header) 
+static void read_pci_device(PciDeviceHeader* header)
 {
 	printf("pci device: type=%d vendor=%04x device=%04x class=%02x subclass=%04x mf=%d\n", header->type, header->vendor, header->device, header->class, header->subclass, header->hasMultipleFunctions);
 
@@ -113,7 +113,7 @@ static void read_pci_device(PciDeviceHeader* header)
 	printf("driver: type=%d bus=%d name=%s\n", driver->type, driver->bus, driver->name);
 }
 
-// static void setup_console(const Framebuffer* framebuffer) 
+// static void setup_console(const Framebuffer* framebuffer)
 // {
 // 	assert(framebuffer);
 
@@ -130,7 +130,7 @@ static void read_pci_device(PciDeviceHeader* header)
 // 	console_clear();
 // }
 
-static void setup_apic(const XSDT* xsdt) 
+static void setup_apic(const XSDT* xsdt)
 {
 	assert(xsdt);
 
@@ -144,7 +144,7 @@ static void setup_apic(const XSDT* xsdt)
 	printf("local apic: base=%p\n", apic_get_base());
 }
 
-static void setup_interrupts(void) 
+static void setup_interrupts(void)
 {
 	interrupts_initialize(8, 0);
 	interrupts_set_handler(0x03, &int3);
@@ -152,7 +152,7 @@ static void setup_interrupts(void)
 	interrupts_enable();
 }
 
-void kmain(Elf64_Ehdr* elf, XSDT* xsdt) 
+void kmain(Elf64_Ehdr* elf, XSDT* xsdt)
 {
 	// setup_console(framebuffer);
 	setup_apic(xsdt);

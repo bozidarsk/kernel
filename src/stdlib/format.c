@@ -5,7 +5,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-typedef struct 
+typedef struct
 {
 	char* buffer;
 	size_t bufferSize, offset;
@@ -30,7 +30,7 @@ size_t tostring_nuint(char* buffer, size_t n, size_t value, unsigned int base, i
 size_t tostring_nint(char* buffer, size_t n, ssize_t value, unsigned int base, int precision);
 size_t tostring_double(char* buffer, size_t n, double x, int precision);
 
-static bool contains(const char* str, char x) 
+static bool contains(const char* str, char x)
 {
 	if (!str)
 		return false;
@@ -42,24 +42,24 @@ static bool contains(const char* str, char x)
 	return false;
 }
 
-static void put_printf(char x, CharPutData data) 
+static void put_printf(char x, CharPutData data)
 {
 	(void)data;
 
 	write(1, &x, 1);
 }
 
-static void put_sprintf(char x, CharPutData data) 
+static void put_sprintf(char x, CharPutData data)
 {
 	data.buffer[data.offset] = x;
 }
 
-static void put_snprintf(char x, CharPutData data) 
+static void put_snprintf(char x, CharPutData data)
 {
 	data.buffer[data.offset] = (data.offset + 1 < (data.bufferSize / sizeof(char))) ? x : 0;
 }
 
-static void put_dprintf(char x, CharPutData data) 
+static void put_dprintf(char x, CharPutData data)
 {
 	write(data.fd, &x, 1);
 }
@@ -137,7 +137,7 @@ n      The number of characters written so far is stored into the integer pointe
 m      (glibc extension; supported by uClibc and musl, and on Android from API level 29.)  Print output of strerror(errno) (or strerrorname_np(errno) in the alternate form).  No argument is required.
 %      A '%' is written.  No argument is converted.  The complete conversion specification is '%%'.
 */
-static void put_common(CharPutMethod put, CharPutData data, const char* format, va_list args) 
+static void put_common(CharPutMethod put, CharPutData data, const char* format, va_list args)
 {
 	data.offset = 0;
 
@@ -161,16 +161,16 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 	const char* numbers = "0123456789";
 	const char* modifiers = "hlqLjzZt";
 
-	for (size_t i = 0; format[i] != 0; i++) 
+	for (size_t i = 0; format[i] != 0; i++)
 	{
-		if (format[i] != '%') 
+		if (format[i] != '%')
 		{
 			put(format[i], data);
 			data.offset++;
 			continue;
 		}
 
-		if (format[i + 1] == '%') 
+		if (format[i + 1] == '%')
 		{
 			put('%', data);
 			data.offset++;
@@ -185,7 +185,7 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 		const char* flag = format + i;
 		size_t flagLength = 0;
 
-		while (contains(flags, format[i])) 
+		while (contains(flags, format[i]))
 		{
 			flagLength++;
 			i++;
@@ -194,7 +194,7 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 		const char* width = format + i;
 		size_t widthLength = 0;
 
-		while (contains(numbers, format[i])) 
+		while (contains(numbers, format[i]))
 		{
 			widthLength++;
 			i++;
@@ -205,13 +205,13 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 		const char* precision = format + i;
 		size_t precisionLength = 0;
 
-		while (contains(numbers, format[i])) 
+		while (contains(numbers, format[i]))
 		{
 			precisionLength++;
 			i++;
 		}
 
-		if (format[i] == '.' && precisionLength == 0) 
+		if (format[i] == '.' && precisionLength == 0)
 		{
 			precision = "0";
 			precisionLength = 1;
@@ -220,7 +220,7 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 		const char* modifier = format + i;
 		size_t modifierLength = 0;
 
-		while (contains(modifiers, format[i])) 
+		while (contains(modifiers, format[i]))
 		{
 			modifierLength++;
 			i++;
@@ -238,14 +238,14 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 
 		int w = -1, p = -1;
 
-		if (widthLength != 0) 
+		if (widthLength != 0)
 		{
 			char widthBuffer[widthLength + 1];
 			widthBuffer[widthLength] = 0;
 			w = atoi((const char*)memcpy(widthBuffer, width, widthLength * sizeof(char)));
 		}
 
-		if (precisionLength != 0) 
+		if (precisionLength != 0)
 		{
 			char precisionBuffer[precisionLength + 1];
 			precisionBuffer[precisionLength] = 0;
@@ -257,12 +257,12 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 		char array[n];
 		char* string = array;
 
-		switch (*conversion) 
+		switch (*conversion)
 		{
 			case 's':
 				string = va_arg(args, char*);
 				n = strlen(string) + 1;
-				if (p != -1 && (size_t)p < n - 1) 
+				if (p != -1 && (size_t)p < n - 1)
 				{
 					n = p;
 					string[n] = 0;
@@ -281,32 +281,32 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 			case 'x':
 			case 'X':
 				if (false);
-				else if (!strcmp(m, "hh")) 
+				else if (!strcmp(m, "hh"))
 				{
 					value__uint8_t = (uint8_t)va_arg(args, int);
 					n = tostring_uint8(string, n, value__uint8_t, 16, p);
 				}
-				else if (!strcmp(m, "h")) 
+				else if (!strcmp(m, "h"))
 				{
 					value__uint16_t = (uint16_t)va_arg(args, int);
 					n = tostring_uint16(string, n, value__uint16_t, 16, p);
 				}
-				else if (!strcmp(m, "l")) 
+				else if (!strcmp(m, "l"))
 				{
 					value__uint64_t = va_arg(args, unsigned long);
 					n = tostring_uint64(string, n, value__uint64_t, 16, p);
 				}
-				else if (!strcmp(m, "ll")) 
+				else if (!strcmp(m, "ll"))
 				{
 					value__uint64_t = va_arg(args, unsigned long long);
 					n = tostring_uint64(string, n, value__uint64_t, 16, p);
 				}
-				else if (!strcmp(m, "z") || !strcmp(m, "Z")) 
+				else if (!strcmp(m, "z") || !strcmp(m, "Z"))
 				{
 					value__nuint = va_arg(args, size_t);
 					n = tostring_nuint(string, n, value__nuint, 16, p);
 				}
-				else 
+				else
 				{
 					value__uint32_t = va_arg(args, unsigned int);
 					n = tostring_uint32(string, n, value__uint32_t, 16, p);
@@ -314,32 +314,32 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 				break;
 			case 'o':
 				if (false);
-				else if (!strcmp(m, "hh")) 
+				else if (!strcmp(m, "hh"))
 				{
 					value__uint8_t = (uint8_t)va_arg(args, int);
 					n = tostring_uint8(string, n, value__uint8_t, 8, p);
 				}
-				else if (!strcmp(m, "h")) 
+				else if (!strcmp(m, "h"))
 				{
 					value__uint16_t = (uint16_t)va_arg(args, int);
 					n = tostring_uint16(string, n, value__uint16_t, 8, p);
 				}
-				else if (!strcmp(m, "l")) 
+				else if (!strcmp(m, "l"))
 				{
 					value__uint64_t = va_arg(args, unsigned long);
 					n = tostring_uint64(string, n, value__uint64_t, 8, p);
 				}
-				else if (!strcmp(m, "ll")) 
+				else if (!strcmp(m, "ll"))
 				{
 					value__uint64_t = va_arg(args, unsigned long long);
 					n = tostring_uint64(string, n, value__uint64_t, 8, p);
 				}
-				else if (!strcmp(m, "z") || !strcmp(m, "Z")) 
+				else if (!strcmp(m, "z") || !strcmp(m, "Z"))
 				{
 					value__nuint = va_arg(args, size_t);
 					n = tostring_nuint(string, n, value__nuint, 8, p);
 				}
-				else 
+				else
 				{
 					value__uint32_t = va_arg(args, unsigned int);
 					n = tostring_uint32(string, n, value__uint32_t, 8, p);
@@ -348,32 +348,32 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 			case 'i':
 			case 'd':
 				if (false);
-				else if (!strcmp(m, "hh")) 
+				else if (!strcmp(m, "hh"))
 				{
 					value__int8_t = (int8_t)va_arg(args, int);
 					n = tostring_int8(string, n, value__int8_t, 10, p);
 				}
-				else if (!strcmp(m, "h")) 
+				else if (!strcmp(m, "h"))
 				{
 					value__int16_t = (int16_t)va_arg(args, int);
 					n = tostring_int16(string, n, value__int16_t, 10, p);
 				}
-				else if (!strcmp(m, "l")) 
+				else if (!strcmp(m, "l"))
 				{
 					value__int64_t = va_arg(args, long);
 					n = tostring_int64(string, n, value__int64_t, 10, p);
 				}
-				else if (!strcmp(m, "ll")) 
+				else if (!strcmp(m, "ll"))
 				{
 					value__int64_t = va_arg(args, long long);
 					n = tostring_int64(string, n, value__int64_t, 10, p);
 				}
-				else if (!strcmp(m, "z") || !strcmp(m, "Z")) 
+				else if (!strcmp(m, "z") || !strcmp(m, "Z"))
 				{
 					value__nint = va_arg(args, ssize_t);
 					n = tostring_nint(string, n, value__nint, 10, p);
 				}
-				else 
+				else
 				{
 					value__int32_t = va_arg(args, int);
 					n = tostring_int32(string, n, value__int32_t, 10, p);
@@ -381,32 +381,32 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 				break;
 			case 'u':
 				if (false);
-				else if (!strcmp(m, "hh")) 
+				else if (!strcmp(m, "hh"))
 				{
 					value__uint8_t = (uint8_t)va_arg(args, int);
 					n = tostring_uint8(string, n, value__uint8_t, 10, p);
 				}
-				else if (!strcmp(m, "h")) 
+				else if (!strcmp(m, "h"))
 				{
 					value__uint16_t = (uint16_t)va_arg(args, int);
 					n = tostring_uint16(string, n, value__uint16_t, 10, p);
 				}
-				else if (!strcmp(m, "l")) 
+				else if (!strcmp(m, "l"))
 				{
 					value__uint64_t = va_arg(args, unsigned long);
 					n = tostring_uint64(string, n, value__uint64_t, 10, p);
 				}
-				else if (!strcmp(m, "ll")) 
+				else if (!strcmp(m, "ll"))
 				{
 					value__uint64_t = va_arg(args, unsigned long long);
 					n = tostring_uint64(string, n, value__uint64_t, 10, p);
 				}
-				else if (!strcmp(m, "z") || !strcmp(m, "Z")) 
+				else if (!strcmp(m, "z") || !strcmp(m, "Z"))
 				{
 					value__nuint = va_arg(args, size_t);
 					n = tostring_nuint(string, n, value__nuint, 10, p);
 				}
-				else 
+				else
 				{
 					value__uint32_t = va_arg(args, unsigned int);
 					n = tostring_uint32(string, n, value__uint32_t, 10, p);
@@ -418,12 +418,12 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 			case 'G':
 			case 'f':
 			case 'F':
-				if (*m == 'L') 
+				if (*m == 'L')
 				{
 					value__long_double = va_arg(args, long double);
 					n = tostring_double(string, n, (double)value__long_double, p);
 				}
-				else 
+				else
 				{
 					value__double = va_arg(args, double);
 					n = tostring_double(string, n, value__double, p);
@@ -436,64 +436,64 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 
 		char padding = (contains("diouxXaAeEfFgG", *conversion) && contains(f, '0')) ? '0' : ' ';
 
-		if (!contains(f, '-')) 
+		if (!contains(f, '-'))
 		{
-			if (contains("idfFeEgG", *conversion) && contains(f, ' ') && string[0] != '-') 
+			if (contains("idfFeEgG", *conversion) && contains(f, ' ') && string[0] != '-')
 			{
 				put(' ', data);
 				data.offset++;
 			}
 
-			if (contains("idfFeEgG", *conversion) && contains(f, '+') && string[0] != '-') 
+			if (contains("idfFeEgG", *conversion) && contains(f, '+') && string[0] != '-')
 			{
 				put('+', data);
 				data.offset++;
 			}
 
-			if (w != -1) 
+			if (w != -1)
 			{
-				for (int t = (n == 0) ? 0 : n - 1; t < w; t++) 
+				for (int t = (n == 0) ? 0 : n - 1; t < w; t++)
 				{
 					put(padding, data);
 					data.offset++;
 				}
 			}
 
-			if (n != 0) 
+			if (n != 0)
 			{
-				for (size_t t = 0; t < n - 1; t++) 
+				for (size_t t = 0; t < n - 1; t++)
 				{
 					put(string[t], data);
 					data.offset++;
 				}
 			}
 		}
-		else 
+		else
 		{
-			if (contains("idfFeEgG", *conversion) && contains(f, ' ') && string[0] != '-') 
+			if (contains("idfFeEgG", *conversion) && contains(f, ' ') && string[0] != '-')
 			{
 				put(' ', data);
 				data.offset++;
 			}
 
-			if (contains("idfFeEgG", *conversion) && contains(f, '+') && string[0] != '-') 
+			if (contains("idfFeEgG", *conversion) && contains(f, '+') && string[0] != '-')
 			{
 				put('+', data);
 				data.offset++;
 			}
 
-			if (n != 0) 
+			if (n != 0)
 			{
-				for (size_t t = 0; t < n - 1; t++) 
+				for (size_t t = 0; t < n - 1; t++)
 				{
 					put(string[t], data);
 					data.offset++;
 				}
 			}
 
-			if (w != -1) 
+			if (w != -1)
 			{
-				for (int t = (n == 0) ? 0 : n - 1; t < w; t++) 
+				for (int t = (n == 0) ? 0 : n - 1; t < w; t++)
 				{
 					put(padding, data);
 					data.offset++;
@@ -505,9 +505,9 @@ static void put_common(CharPutMethod put, CharPutData data, const char* format, 
 	}
 }
 
-void printf(const char* format, ...) 
+void printf(const char* format, ...)
 {
-	CharPutData data = 
+	CharPutData data =
 	{
 	};
 
@@ -517,9 +517,9 @@ void printf(const char* format, ...)
 	va_end(args);
 }
 
-void sprintf(char* buffer, const char* format, ...) 
+void sprintf(char* buffer, const char* format, ...)
 {
-	CharPutData data = 
+	CharPutData data =
 	{
 		.buffer = buffer
 	};
@@ -530,9 +530,9 @@ void sprintf(char* buffer, const char* format, ...)
 	va_end(args);
 }
 
-void snprintf(char* buffer, size_t size, const char* format, ...) 
+void snprintf(char* buffer, size_t size, const char* format, ...)
 {
-	CharPutData data = 
+	CharPutData data =
 	{
 		.buffer = buffer,
 		.bufferSize = size
@@ -544,9 +544,9 @@ void snprintf(char* buffer, size_t size, const char* format, ...)
 	va_end(args);
 }
 
-void dprintf(int fd, const char* format, ...) 
+void dprintf(int fd, const char* format, ...)
 {
-	CharPutData data = 
+	CharPutData data =
 	{
 		.fd = fd
 	};

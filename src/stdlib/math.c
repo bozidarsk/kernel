@@ -1,13 +1,13 @@
 #include <stdint.h>
 
-double fabs(double x) 
+double fabs(double x)
 {
 	uint64_t memory = *(uint64_t*)&x;
 	memory &= (1ul << 63) - 1;
 	return *(double*)&memory;
 }
 
-double floor(double x) 
+double floor(double x)
 {
 	uint64_t memory = *(uint64_t*)&x;
 

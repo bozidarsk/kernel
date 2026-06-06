@@ -30,7 +30,7 @@ typedef enum : uint32_t
 	SDT_TYPE_OEM  = 0x004d454f, // OEM Specific Information Tables (Any table with a signature beginning with "OEM" falls into this definition)
 } SDTType;
 
-typedef struct 
+typedef struct
 {
 	SDTType type;
 	uint32_t size;
@@ -43,13 +43,13 @@ typedef struct
 	uint32_t creatorRevision;
 } __attribute__((packed)) SDT;
 
-typedef struct 
+typedef struct
 {
 	SDT header;
 	uint64_t pOtherHeaders[0];
 } __attribute__((packed)) XSDT; // provided by bootloader
 
-typedef struct 
+typedef struct
 {
 	uint8_t signature[8];
 	uint8_t checksum;
@@ -74,7 +74,7 @@ typedef enum : uint8_t
 	MADT_ENTRY_TYPE_PROCESSOR_LOCAL_x2APIC = 9,
 } MADTEntryType;
 
-typedef enum 
+typedef enum
 {
 	MADT_ENTRY_FLAGS_DEFAULT          = 0b0000,
 	MADT_ENTRY_FLAGS_ACTIVE_HIGH      = 0b0001,
@@ -83,13 +83,13 @@ typedef enum
 	MADT_ENTRY_FLAGS_LEVEL_TRIGGERED  = 0b1100,
 } MADTEntryFlags;
 
-typedef struct 
+typedef struct
 {
 	MADTEntryType type;
 	uint8_t size;
 } __attribute__((packed)) MADTEntry;
 
-typedef struct 
+typedef struct
 {
 	MADTEntryType type;
 	uint8_t size;
@@ -99,7 +99,7 @@ typedef struct
 	uint32_t onlineCapable : 1;
 } __attribute__((packed)) MADTEntryProcessorLocalAPIC;
 
-typedef struct 
+typedef struct
 {
 	MADTEntryType type;
 	uint8_t size;
@@ -109,7 +109,7 @@ typedef struct
 	uint32_t globalSystemInterruptBase;
 } __attribute__((packed)) MADTEntryIOAPIC;
 
-typedef struct 
+typedef struct
 {
 	MADTEntryType type;
 	uint8_t size;
@@ -119,7 +119,7 @@ typedef struct
 	uint16_t flags;
 } __attribute__((packed)) MADTEntryIOAPICInterruptSourceOverride;
 
-typedef struct 
+typedef struct
 {
 	MADTEntryType type;
 	uint8_t size;
@@ -129,7 +129,7 @@ typedef struct
 	uint32_t globalSystemInterrupt;
 } __attribute__((packed)) MADTEntryIOAPICNonMaskableInterrupt;
 
-typedef struct 
+typedef struct
 {
 	MADTEntryType type;
 	uint8_t size;
@@ -138,7 +138,7 @@ typedef struct
 	uint8_t lintn;
 } __attribute__((packed)) MADTEntryLocalAPICNonMaskableInterrupt;
 
-typedef struct 
+typedef struct
 {
 	MADTEntryType type;
 	uint8_t size;
@@ -146,7 +146,7 @@ typedef struct
 	uint64_t address;
 } __attribute__((packed)) MADTEntryLocalAPICAddressOverride;
 
-typedef struct 
+typedef struct
 {
 	MADTEntryType type;
 	uint8_t size;
@@ -157,7 +157,7 @@ typedef struct
 	uint32_t acpiId;
 } __attribute__((packed)) MADTEntryProcessorLocalx2APIC;
 
-typedef struct 
+typedef struct
 {
 	SDT header;
 	uint32_t localAPICAddress;

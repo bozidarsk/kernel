@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef struct 
+typedef struct
 {
 	unsigned __int128 xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7, xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
 	uint64_t rip;
@@ -27,7 +27,7 @@ typedef enum : uint8_t
 	INTERRUPT_FLAGS_RING3     = 0b01100000,
 } InterruptFlags;
 
-typedef struct 
+typedef struct
 {
 	uint16_t baseLow;
 	uint16_t cs;
@@ -38,7 +38,7 @@ typedef struct
 	int32_t index;
 } __attribute__((packed)) InterruptDescriptor;
 
-typedef struct 
+typedef struct
 {
 	uint16_t limit;
 	InterruptDescriptor* base;

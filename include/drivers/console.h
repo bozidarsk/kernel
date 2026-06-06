@@ -3,14 +3,14 @@
 
 #include <stdint.h>
 
-typedef enum VideMode 
+typedef enum VideMode
 {
 	CONSOLE_VIDEO_MODE_SERIAL,
 	CONSOLE_VIDEO_MODE_VGA_TEXT,
 	CONSOLE_VIDEO_MODE_VGA_GRAPHICS,
 } ConsoleVideoMode;
 
-typedef enum 
+typedef enum
 {
 	CONSOLE_COLOR_MODE_B4F4,
 	CONSOLE_COLOR_MODE_R5G6B5,
@@ -39,7 +39,7 @@ typedef enum : uint8_t
 	CONSOLE_COLOR_WHITE = 0xf,
 } ConsoleColor;
 
-typedef enum 
+typedef enum
 {
 	CONSOLE_FONT_NAME_W8H16,
 } ConsoleFontName;
