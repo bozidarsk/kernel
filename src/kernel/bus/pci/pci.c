@@ -3,7 +3,7 @@
 #include "bus/pci.h"
 #include "kernel/ioport.h"
 
-uint32_t pci_read_uint32(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset) 
+uint32_t pci_read_uint32(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset)
 {
 	outd(PCI_CONFIG_ADDRESS,
 		((uint32_t)1 << 31) | ((uint32_t)bus << 16) | ((uint32_t)device << 11) | ((uint32_t)function << 8) | ((uint32_t)offset & ~0b11)
@@ -12,21 +12,21 @@ uint32_t pci_read_uint32(uint8_t bus, uint8_t device, uint8_t function, uint8_t 
 	return ind(PCI_CONFIG_DATA);
 }
 
-uint16_t pci_read_uint16(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset) 
+uint16_t pci_read_uint16(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset)
 {
 	uint32_t data = pci_read_uint32(bus, device, function, offset);
 
 	return (data >> ((offset & 0b10) * 8)) & 0xffff;
 }
 
-uint8_t pci_read_uint8(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset) 
+uint8_t pci_read_uint8(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset)
 {
 	uint32_t data = pci_read_uint32(bus, device, function, offset);
 
 	return (data >> ((offset & 0b11) * 8)) & 0xff;
 }
 
-void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, PciDeviceHeader* header) 
+void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, PciDeviceHeader* header)
 {
 	assert(header);
 
@@ -45,7 +45,7 @@ void pci_read_header(uint8_t bus, uint8_t device, uint8_t function, PciDeviceHea
 	*(uint8_t*)(&header->bist) = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
 }
 
-void pci_read_general_device(uint8_t bus, uint8_t device, uint8_t function, PciGeneralDevice* generalDevice) 
+void pci_read_general_device(uint8_t bus, uint8_t device, uint8_t function, PciGeneralDevice* generalDevice)
 {
 	assert(generalDevice);
 
@@ -71,7 +71,7 @@ void pci_read_general_device(uint8_t bus, uint8_t device, uint8_t function, PciG
 	generalDevice->maxLatency = pci_read_uint8(bus, device, function, offset); offset += sizeof(uint8_t);
 }
 
-void pci_read_pci_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PciBridgeDevice* bridgeDevice) 
+void pci_read_pci_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PciBridgeDevice* bridgeDevice)
 {
 	assert(bridgeDevice);
 
@@ -104,7 +104,7 @@ void pci_read_pci_brigde_device(uint8_t bus, uint8_t device, uint8_t function, P
 	bridgeDevice->bridgeControl = pci_read_uint16(bus, device, function, offset); offset += sizeof(uint16_t);
 }
 
-void pci_read_cardbus_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PciCardbusBridgeDevice* cardbusBridgeDevice) 
+void pci_read_cardbus_brigde_device(uint8_t bus, uint8_t device, uint8_t function, PciCardbusBridgeDevice* cardbusBridgeDevice)
 {
 	assert(cardbusBridgeDevice);
 
@@ -136,7 +136,7 @@ void pci_read_cardbus_brigde_device(uint8_t bus, uint8_t device, uint8_t functio
 	cardbusBridgeDevice->pcCardLegacyBase = pci_read_uint32(bus, device, function, offset); offset += sizeof(uint32_t);
 }
 
-bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, PciDeviceType* type, bool* hasMultipleFunctions) 
+bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, PciDeviceType* type, bool* hasMultipleFunctions)
 {
 	uint8_t value = pci_read_uint8(bus, device, function, 14);
 
@@ -146,22 +146,22 @@ bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, PciDeviceType* ty
 	return pci_read_uint16(bus, device, function, 0) != 0xffff;
 }
 
-void pci_enumerate_devices(void(*callback)(PciDeviceHeader* header)) 
+void pci_enumerate_devices(void(*callback)(PciDeviceHeader* header))
 {
-	for (int bus = 0; bus < 256; bus++) 
+	for (int bus = 0; bus < 256; bus++)
 	{
-		for (int device = 0; device < 32; device++) 
+		for (int device = 0; device < 32; device++)
 		{
 			int function = 0;
 			PciDeviceType type;
 			bool hasMultipleFunctions;
 
-			do 
+			do
 			{
 				if (!pci_exists(bus, device, function, &type, &hasMultipleFunctions))
 					continue;
 
-				switch (type) 
+				switch (type)
 				{
 					case PCI_DEVICE_TYPE_GENERAL:
 						PciGeneralDevice generalDevice;

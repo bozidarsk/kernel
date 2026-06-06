@@ -52,12 +52,12 @@ ConsoleColor console_get_bgcolor(void) { return (consoleColor >> 4) & 0xf; }
 void console_set_fgcolor(ConsoleColor value) { consoleColor = (console_get_bgcolor() << 4) | (value & 0xf); }
 ConsoleColor console_get_fgcolor(void) { return consoleColor & 0xf; }
 
-static void put__VGA_TEXT__B4F4(char c, ConsoleColor color) 
+static void put__VGA_TEXT__B4F4(char c, ConsoleColor color)
 {
 	((uint16_t*)framebuffer)[y * width + x] = (((uint16_t)color << 8) | ((uint16_t)c & 0xff));
 }
 
-static void put__VGA_GRAPHICS__R5G6B5(char c, ConsoleColor color) 
+static void put__VGA_GRAPHICS__R5G6B5(char c, ConsoleColor color)
 {
 	int pixelw = width * charWidth;
 
@@ -67,9 +67,9 @@ static void put__VGA_GRAPHICS__R5G6B5(char c, ConsoleColor color)
 	uint16_t bgfg[2] = { colors[(color >> 4) & 0xf], colors[(color >> 0) & 0xf] };
 
 	int i = 0;
-	for (int dy = 0; dy < charHeight; dy++) 
+	for (int dy = 0; dy < charHeight; dy++)
 	{
-		for (int dx = 0; dx < charWidth; dx++) 
+		for (int dx = 0; dx < charWidth; dx++)
 		{
 			((uint16_t*)framebuffer)[(y * charHeight * pixelw) + (dy * pixelw) + (x * charWidth) + dx] = bgfg[(map[i / charWidth] >> (i % charWidth)) & 1]; // charWidth must be == sizeof(uint8_t) * 8
 			i++;
@@ -77,7 +77,7 @@ static void put__VGA_GRAPHICS__R5G6B5(char c, ConsoleColor color)
 	}
 }
 
-static void put__VGA_GRAPHICS__R8G8B8(char c, ConsoleColor color) 
+static void put__VGA_GRAPHICS__R8G8B8(char c, ConsoleColor color)
 {
 	const uint8_t* map = bitmap + (((charWidth * charHeight) / 8) * (int)(uint32_t)c);
 
@@ -85,9 +85,9 @@ static void put__VGA_GRAPHICS__R8G8B8(char c, ConsoleColor color)
 	uint32_t bgfg[2] = { colors[(color >> 4) & 0xf], colors[(color >> 0) & 0xf] };
 
 	int i = 0;
-	for (int dy = 0; dy < charHeight; dy++) 
+	for (int dy = 0; dy < charHeight; dy++)
 	{
-		for (int dx = 0; dx < charWidth; dx++) 
+		for (int dx = 0; dx < charWidth; dx++)
 		{
 			int bpp = depth / 8; // bytes per pixel not bits
 
@@ -106,7 +106,7 @@ static void put__VGA_GRAPHICS__R8G8B8(char c, ConsoleColor color)
 	}
 }
 
-static void put__SERIAL__(char c, ConsoleColor color) 
+static void put__SERIAL__(char c, ConsoleColor color)
 {
 	(void)color; // -Wunused-parameter
 
@@ -114,12 +114,12 @@ static void put__SERIAL__(char c, ConsoleColor color)
 	outb(0x3f8, (uint8_t)c);
 }
 
-static CharPutMethod getCharPutMethod(void) 
+static CharPutMethod getCharPutMethod(void)
 {
-	switch (videoMode) 
+	switch (videoMode)
 	{
 		case CONSOLE_VIDEO_MODE_VGA_TEXT:
-			switch (colorMode) 
+			switch (colorMode)
 			{
 				case CONSOLE_COLOR_MODE_B4F4:
 					return &put__VGA_TEXT__B4F4;
@@ -128,7 +128,7 @@ static CharPutMethod getCharPutMethod(void)
 			}
 			break;
 		case CONSOLE_VIDEO_MODE_VGA_GRAPHICS:
-			switch (colorMode) 
+			switch (colorMode)
 			{
 				case CONSOLE_COLOR_MODE_R5G6B5:
 					return &put__VGA_GRAPHICS__R5G6B5;
@@ -147,18 +147,18 @@ static CharPutMethod getCharPutMethod(void)
 	assert(!"Cannot putc with current video and color modes.");
 }
 
-void console_scroll(int lines) 
+void console_scroll(int lines)
 {
 	if (videoMode == CONSOLE_VIDEO_MODE_SERIAL)
 		return;
 
 	if (lines == 0)
 		return;
-	else if (lines > 0) 
+	else if (lines > 0)
 	{
 		assert(!"Cannot scroll up.");
 	}
-	else if (lines < 0) 
+	else if (lines < 0)
 	{
 		int pitchb = pitch * charHeight;
 		lines = -lines;
@@ -168,7 +168,7 @@ void console_scroll(int lines)
 	}
 }
 
-void console_clear(void) 
+void console_clear(void)
 {
 	if (videoMode == CONSOLE_VIDEO_MODE_SERIAL)
 		return;
@@ -183,9 +183,9 @@ void console_clear(void)
 	x = 0;
 	y = 0;
 
-	for (int i = 0; i < max; i++) 
+	for (int i = 0; i < max; i++)
 	{
-		if (x >= width) 
+		if (x >= width)
 		{
 			x = 0;
 			y++;
@@ -199,7 +199,7 @@ void console_clear(void)
 	y = 0;
 }
 
-static void writeChars(const char* chars, ConsoleColor color) 
+static void writeChars(const char* chars, ConsoleColor color)
 {
 	if (!chars)
 		return;
@@ -209,21 +209,21 @@ static void writeChars(const char* chars, ConsoleColor color)
 	if (!put)
 		return;
 
-	for (int i = 0; chars[i] != '\0'; i++) 
+	for (int i = 0; chars[i] != '\0'; i++)
 	{
-		if (x >= width) 
+		if (x >= width)
 		{
 			x = 0;
 			y++;
 		}
 
-		if (videoMode != CONSOLE_VIDEO_MODE_SERIAL && y >= height) 
+		if (videoMode != CONSOLE_VIDEO_MODE_SERIAL && y >= height)
 		{
 			console_scroll(-1);
 			y--;
 		}
 
-		switch (chars[i]) 
+		switch (chars[i])
 		{
 			case '\r':
 				x = 0;
@@ -243,7 +243,7 @@ static void writeChars(const char* chars, ConsoleColor color)
 	}
 }
 
-ssize_t write(int fd, const void* buffer, size_t size) 
+ssize_t write(int fd, const void* buffer, size_t size)
 {
 	(void)fd;
 

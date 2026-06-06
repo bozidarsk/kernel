@@ -15,9 +15,9 @@ uint8_t tmpxsdt[4096];
 __attribute__((aligned(16)))
 uint8_t tmpstack[4096];
 
-void Printf(const CHAR16* fmt, ...) 
+void Printf(const CHAR16* fmt, ...)
 {
-	if (!ExitedBootServices) 
+	if (!ExitedBootServices)
 	{
 		va_list args;
 		va_start(args, fmt);
@@ -27,9 +27,9 @@ void Printf(const CHAR16* fmt, ...)
 }
 
 __attribute__((noreturn))
-void Errorf(const CHAR16* message, ...) 
+void Errorf(const CHAR16* message, ...)
 {
-	if (!ExitedBootServices) 
+	if (!ExitedBootServices)
 	{
 		va_list args;
 		va_start(args, message);
@@ -37,14 +37,14 @@ void Errorf(const CHAR16* message, ...)
 		va_end(args);
 	}
 
-	do 
+	do
 	{
 		breakpoint();
 		halt();
 	} while (true);
 }
 
-void* CopyMemory(void* destination, const void* source, size_t size) 
+void* CopyMemory(void* destination, const void* source, size_t size)
 {
 	if (!destination || !source)
 		return destination;
@@ -55,7 +55,7 @@ void* CopyMemory(void* destination, const void* source, size_t size)
 	return destination;
 }
 
-void* SetMemory(void* destination, int32_t value, size_t size) 
+void* SetMemory(void* destination, int32_t value, size_t size)
 {
 	if (!destination)
 		return destination;
@@ -74,35 +74,35 @@ void PrintMemoryMap(void)
     UINTN MapKey;
     UINTN DescriptorSize;
     UINT32 DescriptorVersion;
-    
+
     // Get memory map size
     Status = uefi_call_wrapper(BS->GetMemoryMap, 5, &MemoryMapSize, MemoryMap, &MapKey, &DescriptorSize, &DescriptorVersion);
-    
+
     MemoryMapSize += 2*  DescriptorSize;
     Status = uefi_call_wrapper(BS->AllocatePool, 3, EfiLoaderData, MemoryMapSize, (VOID**)&MemoryMap);
     if (EFI_ERROR(Status)) Errorf(L"PrintMemoryMap(): BS->AllocatePool(): failed to allocate memory map - %r\n", Status);
-    
+
     Status = uefi_call_wrapper(BS->GetMemoryMap, 5, &MemoryMapSize, MemoryMap, &MapKey, &DescriptorSize, &DescriptorVersion);
-    if (EFI_ERROR(Status)) 
+    if (EFI_ERROR(Status))
     {
         Errorf(L"PrintMemoryMap(): BS->GetMemoryMap(): failed to get memory map - %r\n", Status);
         uefi_call_wrapper(BS->FreePool, 1, MemoryMap);
         return;
     }
-    
+
     Printf(L"\n=== Memory Map ===\n");
     Printf(L"Type                     Start            End              Pages\n");
     Printf(L"-----------------------------------------------------------------------\n");
-    
+
     UINT8* MapPtr = (UINT8*)MemoryMap;
     UINT8* MapEnd = MapPtr + MemoryMapSize;
-    
-    while (MapPtr < MapEnd) 
+
+    while (MapPtr < MapEnd)
     {
         EFI_MEMORY_DESCRIPTOR* Desc = (EFI_MEMORY_DESCRIPTOR*)MapPtr;
-        
+
         const CHAR16* TypeName;
-        switch (Desc->Type) 
+        switch (Desc->Type)
         {
             case EfiReservedMemoryType:      TypeName = L"Reserved"; break;
             case EfiLoaderCode:              TypeName = L"LoaderCode"; break;
@@ -120,20 +120,20 @@ void PrintMemoryMap(void)
             case EfiPalCode:                 TypeName = L"PalCode"; break;
             default:                         TypeName = L"Unknown"; break;
         }
-        
+
         EFI_PHYSICAL_ADDRESS End = Desc->PhysicalStart + (Desc->NumberOfPages * 4096);
-        
+
         Printf(L"%-20s 0x%016lx 0x%016lx %6ld\n", TypeName, Desc->PhysicalStart, End, Desc->NumberOfPages);
-        
+
         MapPtr += DescriptorSize;
     }
-    
+
     Printf(L"=======================================================================\n\n");
-    
+
     uefi_call_wrapper(BS->FreePool, 1, MemoryMap);
 }
 
-void Read(EFI_HANDLE image, const CHAR16* path) 
+void Read(EFI_HANDLE image, const CHAR16* path)
 {
 	Printf(L"reading elf file '" ELF_PATH "'\n");
 
@@ -171,7 +171,7 @@ void Read(EFI_HANDLE image, const CHAR16* path)
 	if (EFI_ERROR(Status)) Errorf(L"Read(): FileHandle->Close(): %r\n", Status);
 }
 
-void* Load(void) 
+void* Load(void)
 {
 	Printf(L"loading elf file '" ELF_PATH "'\n");
 
@@ -189,16 +189,16 @@ void* Load(void)
 
 	Elf64_Phdr* ProgramHeaders = (Elf64_Phdr*)((UINT8*)tmpelf + ElfHeader->e_phoff);
 
-	for (int i = 0; i < ElfHeader->e_phnum; i++) 
+	for (int i = 0; i < ElfHeader->e_phnum; i++)
 	{
 		Elf64_Phdr* phdr = ProgramHeaders + i;
-		
+
 		if (phdr->p_type != PT_LOAD)
 			continue;
 
 		Printf(L"segment %d wants paddr=%p vaddr=%p size=%p\n", i, phdr->p_paddr, phdr->p_vaddr, phdr->p_memsz);
 
-		if (phdr->p_memsz == 0) 
+		if (phdr->p_memsz == 0)
 		{
 			Printf(L"segment %d is zero-sized - skipping\n", i);
 			continue;
@@ -218,7 +218,7 @@ void* Load(void)
 	return (void*)ElfHeader->e_entry;
 }
 
-void ExitBootServices(EFI_HANDLE ImageHandle) 
+void ExitBootServices(EFI_HANDLE ImageHandle)
 {
 	Printf(L"exiting boot services\n");
 
@@ -247,7 +247,7 @@ void ExitBootServices(EFI_HANDLE ImageHandle)
 	ExitedBootServices = true;
 }
 
-uint64_t SaveXSDT(const XSDT* xsdt) 
+uint64_t SaveXSDT(const XSDT* xsdt)
 {
 	int entries = (xsdt->header.size - sizeof(xsdt->header)) / sizeof(xsdt->pOtherHeaders[0]);
 	uint8_t* address = tmpxsdt;
@@ -260,7 +260,7 @@ uint64_t SaveXSDT(const XSDT* xsdt)
 
 	address += entries * sizeof(xsdt->pOtherHeaders[0]);
 
-	for (int i = 0; i < entries; i++) 
+	for (int i = 0; i < entries; i++)
 	{
 		SDT* header = (SDT*)xsdt->pOtherHeaders[i];
 
@@ -278,7 +278,7 @@ uint64_t SaveXSDT(const XSDT* xsdt)
 
 EFI_STATUS
 EFIAPI
-efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) 
+efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 {
 	InitializeLib(ImageHandle, SystemTable);
 
@@ -286,7 +286,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 
 	uint64_t elfSize = sizeof(tmpelf), xsdtSize = 0;
 
-	for (UINTN i = 0; i < SystemTable->NumberOfTableEntries; i++) 
+	for (UINTN i = 0; i < SystemTable->NumberOfTableEntries; i++)
 	{
 		if (!CompareGuid(&(SystemTable->ConfigurationTable[i].VendorGuid), &AcpiTableGuid))
 			continue;
