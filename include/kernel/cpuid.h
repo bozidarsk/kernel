@@ -2,6 +2,7 @@
 #define CPUID_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef enum : uint64_t
 {
