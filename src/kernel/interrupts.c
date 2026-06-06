@@ -16,7 +16,7 @@ static Registers regs;
 
 __attribute__((naked))
 __attribute__((used))
-static void isr_common(void) 
+static void isr_common(void)
 {
 	__asm__ volatile("mov %0, %%rax" : "=r" (regs.rax));
 	__asm__ volatile("mov %0, %%rbx" : "=r" (regs.rbx));
@@ -92,7 +92,7 @@ static void isr_common(void)
 	__asm__ volatile("mov %0, [%%rbp + 0]" : "=r" (index));
 	__asm__ volatile("mov %0, [%%rbp + 8]" : "=r" (error));
 
-	if (handlers[index]) 
+	if (handlers[index])
 	{
 		uint64_t size = (sizeof(Registers) | 0xf) + 1;
 		__asm__ volatile("sub %%rsp, %0" : : "r" (size));
@@ -398,7 +398,7 @@ def_isr_noerror(253);
 def_isr_noerror(254);
 def_isr_noerror(255);
 
-static void(*isrs[INTERRUPTS_COUNT])(void) = 
+static void(*isrs[INTERRUPTS_COUNT])(void) =
 {
 	&isr0,
 	&isr1,
@@ -659,7 +659,7 @@ static void(*isrs[INTERRUPTS_COUNT])(void) =
 };
 
 static InterruptDescriptor descriptors[INTERRUPTS_COUNT] = {0};
-static InterruptDescriptorTable table = 
+static InterruptDescriptorTable table =
 {
 	.limit = sizeof(descriptors) - 1,
 	.base = descriptors,
@@ -669,23 +669,23 @@ void interrupts_enable(void) { __asm__ volatile("sti"); }
 void interrupts_disable(void) { __asm__ volatile("cli"); }
 void interrupts_load(const InterruptDescriptorTable* table) { __asm__ volatile("lidt [%0]" : : "r"(table) : "memory"); }
 
-void interrupts_set_handler(int index, InterruptHandler handler) 
+void interrupts_set_handler(int index, InterruptHandler handler)
 {
 	assert(index >= 0 && index < INTERRUPTS_COUNT);
 
 	handlers[index] = handler;
 }
 
-InterruptHandler interrupts_get_handler(int index) 
+InterruptHandler interrupts_get_handler(int index)
 {
 	assert(index >= 0 && index < INTERRUPTS_COUNT);
 
 	return handlers[index];
 }
 
-void interrupts_initialize(int cs, int ist) 
+void interrupts_initialize(int cs, int ist)
 {
-	for (int i = 0; i < INTERRUPTS_COUNT; i++) 
+	for (int i = 0; i < INTERRUPTS_COUNT; i++)
 	{
 		descriptors[i].index = i;
 		descriptors[i].flags = INTERRUPT_FLAGS_INTERRUPT | INTERRUPT_FLAGS_PRESENT;
