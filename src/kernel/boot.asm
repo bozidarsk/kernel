@@ -30,7 +30,7 @@ page_table_l1: resb 4096
 section .text
 
 setup_page_tables:
-	mov rax, page_table_l3 
+	mov rax, page_table_l3
 	or rax, 0b11
 	mov [page_table_l4], rax
 

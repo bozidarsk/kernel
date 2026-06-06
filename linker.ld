@@ -1,6 +1,6 @@
 ENTRY(_start)
 
-PHDRS 
+PHDRS
 {
    stack PT_LOAD FLAGS (6);
    framebuffer PT_LOAD FLAGS (6);
@@ -9,7 +9,7 @@ PHDRS
    data PT_LOAD FLAGS (6);
 }
 
-SECTIONS 
+SECTIONS
 {
 	. = 4K; /* not present */
 
@@ -17,7 +17,7 @@ SECTIONS
 
 	. = 2M;
 
-	.stack ALIGN(16) : 
+	.stack ALIGN(16) :
 	{
 		KEEP(*(.stack))
 	} :stack
@@ -25,30 +25,30 @@ SECTIONS
 	PROVIDE(STACKTOP = .);
 
 	PROVIDE(CONSOLEBUFFER = .);
-	.framebuffer : 
+	.framebuffer :
 	{
 		KEEP(*(.framebuffer))
 	} :framebuffer
 	. += 3 * 2M;
 
-	.text : 
+	.text :
 	{
 		*(.text*)
 	} :text
 
-	.rodata : 
+	.rodata :
 	{
 		*(.rodata*)
 		*(.rdata*)
 	} :rodata
 
-	.data : 
+	.data :
 	{
 		*(.data*)
 		*(.eh_frame*)
 	} :data
 
-	.bss : 
+	.bss :
 	{
 		*(.bss*)
 	} :data
