@@ -7,7 +7,7 @@
 
 static NetworkDevice netdevs[5];
 
-NetworkDevice* drivers_get_netdev(void) 
+NetworkDevice* drivers_get_netdev(void)
 {
 	for (size_t i = 0; i < countof(netdevs); i++)
 		if (netdevs[i].driver.isLoaded)
@@ -16,7 +16,7 @@ NetworkDevice* drivers_get_netdev(void)
 	return NULL;
 }
 
-void drivers_unload(Driver* driver) 
+void drivers_unload(Driver* driver)
 {
 	driver->isLoaded = false;
 
@@ -25,14 +25,14 @@ void drivers_unload(Driver* driver)
 
 #define X(x) for (size_t i = 0; i < countof(x); i++) { if (!x[i].driver.isLoaded) { device = &x[i]; driver = &x[i].driver; } }
 
-Driver* drivers_load_pci(PciGeneralDevice* pciDevice) 
+Driver* drivers_load_pci(PciGeneralDevice* pciDevice)
 {
 	assert(pciDevice);
 
 	void* device = NULL;
 	Driver* driver = NULL;
 
-	switch (pciDevice->header.class) 
+	switch (pciDevice->header.class)
 	{
 		case PCI_DEVICE_CLASS_NETWORK_CONTROLLER:
 			X(netdevs)
@@ -46,7 +46,7 @@ Driver* drivers_load_pci(PciGeneralDevice* pciDevice)
 	driver->bus = DRIVER_BUS_PCI;
 	driver->source.pciDevice = pciDevice;
 
-	switch (*(uint32_t*)pciDevice) 
+	switch (*(uint32_t*)pciDevice)
 	{
 		case 0x10d38086:
 			driver->name = "e1000e";

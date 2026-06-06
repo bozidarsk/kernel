@@ -1,11 +1,11 @@
 #include "kernel/cpu.h"
 
-void cpu_set_msr(uint32_t command, uint32_t eax, uint32_t edx) 
+void cpu_set_msr(uint32_t command, uint32_t eax, uint32_t edx)
 {
 	__asm__ volatile("wrmsr" : : "c" (command), "a" (eax), "d" (edx));
 }
 
-void cpu_get_msr(uint32_t command, uint32_t* eax, uint32_t* edx) 
+void cpu_get_msr(uint32_t command, uint32_t* eax, uint32_t* edx)
 {
 	uint32_t a, d;
 

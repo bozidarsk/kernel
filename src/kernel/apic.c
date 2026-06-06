@@ -4,7 +4,7 @@
 #include "kernel/cpu.h"
 #include "kernel/eh.h"
 
-void apic_set_base(void* value) 
+void apic_set_base(void* value)
 {
 	uint64_t apic = (uint64_t)value;
 
@@ -16,7 +16,7 @@ void apic_set_base(void* value)
 	cpu_set_msr(APIC_BASE_MSR, eax, edx);
 }
 
-void* apic_get_base(void) 
+void* apic_get_base(void)
 {
 	uint32_t eax, edx;
 	cpu_get_msr(APIC_BASE_MSR, &eax, &edx);
@@ -24,28 +24,28 @@ void* apic_get_base(void)
 	return (void*)(((uint64_t)eax & 0xfffff000) | (((uint64_t)edx & 0x0f) << 32));
 }
 
-uint32_t apic_register_read(int offset) 
+uint32_t apic_register_read(int offset)
 {
 	void* base = apic_get_base();
 
 	return *(volatile uint32_t*)((volatile uint8_t*)base + offset);
 }
 
-void apic_register_write(int offset, uint32_t value) 
+void apic_register_write(int offset, uint32_t value)
 {
 	void* base = apic_get_base();
 
 	*(volatile uint32_t*)((volatile uint8_t*)base + offset) = value;
 }
 
-void apic_sendeoi(int index) 
+void apic_sendeoi(int index)
 {
 	(void)index;
 
 	apic_register_write(APIC_REGISTER_OFFSET_EOI, 0);
 }
 
-void apic_initialize(void) 
+void apic_initialize(void)
 {
 	assert(cpuid_has_features(CPUID_FEATURES_APIC));
 

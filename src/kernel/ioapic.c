@@ -11,12 +11,12 @@ uint32_t ioapic_register_read(int offset)
 	return *(volatile uint32_t*)((volatile uint8_t*)base + 0x10);
 }
 
-void ioapic_register_write(int offset, uint32_t value) 
+void ioapic_register_write(int offset, uint32_t value)
 {
 	void* base = apic_get_base();
 
 	/* tell IOREGSEL where we want to write to */
 	*(volatile uint32_t*)base = offset;
 	/* write the value to IOWIN */
-	*(volatile uint32_t*)((volatile uint8_t*)base + 0x10) = value; 
+	*(volatile uint32_t*)((volatile uint8_t*)base + 0x10) = value;
 }

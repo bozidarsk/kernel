@@ -1,11 +1,11 @@
 #include "kernel/pic.h"
 #include "kernel/ioport.h"
 
-void pic_sendeoi(int index) 
+void pic_sendeoi(int index)
 {
 	int irq = (int)index - PIC_OFFSET; // pic offset
 
-	if (irq >= 0 && irq <= 15) 
+	if (irq >= 0 && irq <= 15)
 	{
 		if (irq > 7)
 			outb(PIC_SLAVE_COMMAND, PIC_COMMAND_EOI);
@@ -14,7 +14,7 @@ void pic_sendeoi(int index)
 	}
 }
 
-void pic_remap(int offset) 
+void pic_remap(int offset)
 {
 	outb(PIC_MASTER_COMMAND, PIC_ICW1_INITIALIZE | PIC_ICW1_ICW4); // starts the initialization sequence (in cascade mode)
 	iowait();
@@ -37,37 +37,37 @@ void pic_remap(int offset)
 	iowait();
 }
 
-void pic_mask(uint8_t irq) 
+void pic_mask(uint8_t irq)
 {
 	uint16_t port;
 
 	if (irq < 8)
 		port = PIC_MASTER_DATA;
-	else 
+	else
 	{
 		port = PIC_SLAVE_DATA;
 		irq -= 8;
 	}
 
-	outb(port, inb(port) | (1 << irq));		
+	outb(port, inb(port) | (1 << irq));
 }
 
-void pic_unmask(uint8_t irq) 
+void pic_unmask(uint8_t irq)
 {
 	uint16_t port;
 
 	if(irq < 8)
 		port = PIC_MASTER_DATA;
-	else 
+	else
 	{
 		port = PIC_SLAVE_DATA;
 		irq -= 8;
 	}
 
-	outb(port, inb(port) & ~(1 << irq));		
+	outb(port, inb(port) & ~(1 << irq));
 }
 
-void pic_enable(void) 
+void pic_enable(void)
 {
 	outb(PIC_MASTER_DATA, 0);
 	iowait();
@@ -75,7 +75,7 @@ void pic_enable(void)
 	iowait();
 }
 
-void pic_disable(void) 
+void pic_disable(void)
 {
 	outb(PIC_MASTER_DATA, 0xff);
 	iowait();

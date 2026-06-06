@@ -1,7 +1,7 @@
 #include "kernel/cpuid.h"
 #include "kernel/eh.h"
 
-void cpuid(uint64_t command, uint32_t* eax, uint32_t* ebx, uint32_t* ecx, uint32_t* edx) 
+void cpuid(uint64_t command, uint32_t* eax, uint32_t* ebx, uint32_t* ecx, uint32_t* edx)
 {
 	uint32_t a, b, c, d;
 
@@ -14,7 +14,7 @@ void cpuid(uint64_t command, uint32_t* eax, uint32_t* ebx, uint32_t* ecx, uint32
 	if (edx) *edx = d;
 }
 
-void cpuid_get_vendor(char name[12 + 1]) 
+void cpuid_get_vendor(char name[12 + 1])
 {
 	assert(name);
 
@@ -39,7 +39,7 @@ void cpuid_get_vendor(char name[12 + 1])
 	name[12] = 0;
 }
 
-Features cpuid_get_features(void) 
+Features cpuid_get_features(void)
 {
 	uint32_t eax, ebx, ecx, edx;
 	cpuid(1, &eax, &ebx, &ecx, &edx);
