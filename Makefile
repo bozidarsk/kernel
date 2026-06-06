@@ -73,7 +73,7 @@ kernel: $(call deps,kernel) | stdlib
 
 boot: kernel src/boot/efi.c
 	@mkdir -p $(BUILD)/boot
-	$(CC) $(CFLAGS) -c src/boot/efi.c -o $(BUILD)/boot/efi.o -fpic -I /usr/include/efi -D DEFI_FUNCTION_WRAPPER -D ELF_PATH=L\"kernel.bin\" -D ELF_SIZE=$(shell du -b $(BUILD)/kernel.bin | sed -E 's/([0-9]+)\s+$(BUILD)\/kernel.bin/\1/')
+	$(CC) $(CFLAGS) -c src/boot/efi.c -o $(BUILD)/boot/efi.o -fpic -I /usr/include/efi -I /usr/include/efi/x86_64 -D ELF_PATH=L\"kernel.bin\" -D ELF_SIZE=$(shell du -b $(BUILD)/kernel.bin | sed -E 's/([0-9]+)\s+$(BUILD)\/kernel.bin/\1/')
 	ld $(LDFLAGS) $(BUILD)/boot/efi.o /usr/lib/crt0-efi-x86_64.o -o $(BUILD)/boot/efi.so -m elf_x86_64 -shared -Bsymbolic -T /usr/lib/elf_x86_64_efi.lds -L /usr/lib -lgnuefi -lefi
 	objcopy --output-target efi-app-x86_64 --subsystem=10 $(BUILD)/boot/efi.so $(BUILD)/BOOTX64.EFI -j .text -j .sdata -j .data -j .rodata -j .dynamic -j .dynsym -j .rel -j .rela -j '.rel.*' -j '.rela.*' -j .reloc
 

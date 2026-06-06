@@ -1,6 +1,11 @@
 CompileFlags:
+    Compiler: x86_64-linux-gnu-gcc
+---
+If:
+    PathMatch: src/boot/.*
+CompileFlags:
     Add:
-        - "-xc"
-        - "-xc-header"
-        - "-std=c23"
-        - "--include-directory=/home/bozidarsk/Projects/kernel/include"
+        - "-DELF_SIZE=1"
+        - '-DELF_PATH=L"kernel.bin"'
+        - "-I/usr/include/efi"
+        - "-I/usr/include/efi/x86_64"

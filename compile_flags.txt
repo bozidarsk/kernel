@@ -1,0 +1,11 @@
+-Iinclude
+-xc
+-xc-header
+-std=c23
+-nostdinc
+-nostdlib
+-fshort-wchar
+-Wall
+-Wextra
+-Wno-switch
+-masm=intel
