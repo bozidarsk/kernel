@@ -171,31 +171,17 @@ typedef enum : uint8_t
 
 typedef enum
 {
-	PCI_BAR_TYPE_MEMORY = 0,
-	PCI_BAR_TYPE_IO = 1,
+	PCI_BAR_TYPE_IO       = 0b001,
+	PCI_BAR_TYPE_MEMORY32 = 0b000,
+	PCI_BAR_TYPE_MEMORY64 = 0b100,
 } PciBARType;
-
-typedef struct
-{
-	uint32_t reserved : 1;
-	uint32_t type : 2;
-	uint32_t prefetchable : 1;
-	uint32_t address : 28;
-} __attribute__((packed)) PciMemoryBAR;
-
-typedef struct
-{
-	uint32_t reserved : 2;
-	uint32_t address : 30;
-} __attribute__((packed)) PciIOBAR;
 
 typedef struct
 {
 	union
 	{
-		PciBARType type : 1; // 0 for memory BAR, 1 for io BAR
-		PciMemoryBAR memory;
-		PciIOBAR io;
+		PciBARType type : 3;
+		uint32_t address;
 	};
 } __attribute__((packed)) PciBAR;
 
@@ -316,6 +302,7 @@ typedef struct
 	uint32_t pcCardLegacyBase;
 } __attribute__((packed)) PciCardbusBridgeDevice;
 
+uint64_t pci_bar_decode(PciBAR bar, PciBAR upper);
 bool pci_exists(uint8_t bus, uint8_t device, uint8_t function, PciDeviceType* type, bool* hasMultipleFunctions);
 uint32_t pci_read_uint32(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
 uint16_t pci_read_uint16(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);

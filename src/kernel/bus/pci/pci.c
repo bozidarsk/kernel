@@ -1,7 +1,23 @@
 #include <assert.h>
+#include <stdint.h>
 
 #include "bus/pci.h"
 #include "kernel/ioport.h"
+
+uint64_t pci_bar_decode(PciBAR lower, PciBAR upper)
+{
+	switch (lower.type)
+	{
+		case PCI_BAR_TYPE_IO:
+			return lower.address & 0xfffffffc;
+		case PCI_BAR_TYPE_MEMORY32:
+			return lower.address & 0xfffffff0;
+		case PCI_BAR_TYPE_MEMORY64:
+			return (uint64_t)(lower.address & 0xfffffff0) | ((uint64_t)upper.address << 32);
+	}
+
+	return 0;
+}
 
 uint32_t pci_read_uint32(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset)
 {

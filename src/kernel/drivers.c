@@ -5,12 +5,12 @@
 
 #include "drivers/e1000e.h"
 
-static NetworkDevice netdevs[5];
+static NetworkDriver netdevs[5];
 
-NetworkDevice* drivers_get_netdev(void)
+NetworkDriver* drivers_get_netdev(void)
 {
 	for (size_t i = 0; i < countof(netdevs); i++)
-		if (netdevs[i].driver.isLoaded)
+		if (netdevs[i].base.isLoaded)
 			return &netdevs[i];
 
 	return NULL;
@@ -20,16 +20,16 @@ void drivers_unload(Driver* driver)
 {
 	driver->isLoaded = false;
 
-	// potential cleanup
+	if (driver->free)
+		driver->free(driver);
 }
 
-#define X(x) for (size_t i = 0; i < countof(x); i++) { if (!x[i].driver.isLoaded) { device = &x[i]; driver = &x[i].driver; } }
+#define X(x) for (size_t i = 0; i < countof(x); i++) { if (!x[i].base.isLoaded) { driver = &x[i].base; } }
 
 Driver* drivers_load_pci(PciGeneralDevice* pciDevice)
 {
 	assert(pciDevice);
 
-	void* device = NULL;
 	Driver* driver = NULL;
 
 	switch (pciDevice->header.class)
@@ -44,17 +44,19 @@ Driver* drivers_load_pci(PciGeneralDevice* pciDevice)
 		return NULL;
 
 	driver->bus = DRIVER_BUS_PCI;
-	driver->source.pciDevice = pciDevice;
+	driver->source.asPci = pciDevice;
 
 	switch (*(uint32_t*)pciDevice)
 	{
 		case 0x10d38086:
 			driver->name = "e1000e";
-			e1000e_initialize((NetworkDevice*)device);
+			driver->initialize = (void(*)(Driver*))&e1000e_initialize;
 			break;
 	}
 
 	driver->isLoaded = true;
+	driver->initialize(driver);
+
 	return driver;
 }
 

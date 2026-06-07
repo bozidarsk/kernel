@@ -26,7 +26,7 @@ typedef enum
 	DRIVER_BUS_SERIAL,
 } DriverBus;
 
-typedef struct
+typedef struct Driver
 {
 	DriverType type;
 	DriverBus bus;
@@ -34,18 +34,21 @@ typedef struct
 	const char* name;
 	union
 	{
-		PciGeneralDevice* pciDevice;
+		PciGeneralDevice* asPci;
 	} source; // the argument that has been used by drivers_load_* to initialize this driver
+	void (*initialize)(struct Driver* driver);
+	void (*free)(struct Driver* driver);
 } Driver;
 
 typedef struct
 {
-	Driver driver;
+	Driver base;
+	uint8_t mac[6];
 	void(*transceive)(void* data, size_t size);
 	void*(*receive)();
-} NetworkDevice;
+} NetworkDriver;
 
-NetworkDevice* drivers_get_netdev(void);
+NetworkDriver* drivers_get_network(void);
 // get first video dev
 // get first mouse dev
 // get first ... dev
@@ -54,9 +57,9 @@ void drivers_unload(Driver* driver);
 Driver* drivers_load_pci(PciGeneralDevice* pciDevice);
 // Driver* drivers_load_usb(UsbDevice* usbDevice);
 
-#define drivers_load(dev) _Generic(dev, \
-	PciGeneralDevice*: drivers_load_pci(dev), \
-	default: assert(!"Cannot load driver for unknown device type '" #dev "'.") \
+#define drivers_load(device) _Generic(device, \
+	PciGeneralDevice*: drivers_load_pci(device), \
+	default: assert(!"Cannot load driver for unknown device type '" #device "'.") \
 )
 
 #endif
