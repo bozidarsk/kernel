@@ -168,11 +168,10 @@ void pci_enumerate_devices(void(*callback)(PciDeviceHeader* header))
 	{
 		for (int device = 0; device < 32; device++)
 		{
-			int function = 0;
 			PciDeviceType type;
 			bool hasMultipleFunctions;
 
-			do
+			for (int function = 0; function < 8; function++)
 			{
 				if (!pci_exists(bus, device, function, &type, &hasMultipleFunctions))
 					continue;
@@ -198,8 +197,9 @@ void pci_enumerate_devices(void(*callback)(PciDeviceHeader* header))
 						assert(!"Unknown pci device type.");
 				}
 
-				function++;
-			} while (hasMultipleFunctions);
+				if (!hasMultipleFunctions)
+					break;
+			}
 		}
 	}
 }
